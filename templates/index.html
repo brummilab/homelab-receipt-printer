@@ -109,6 +109,7 @@ input[type=text]:focus,
 input[type=password]:focus,
 input[type=number]:focus { border-color: var(--accent); }
 input[type=number] { width: 90px; }
+input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; }
 
 /* ── Toggles ── */
 .toggle-row {
@@ -266,8 +267,29 @@ input[type=number] { width: 90px; }
     <div class="card">
       <div class="card-title">Drucker</div>
       <div class="field">
+        <label class="label">Verbindung</label>
+        <div class="inline" style="gap:20px;">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;">
+            <input type="radio" x-model="cfg.printer.backend" value="usb"> USB
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;">
+            <input type="radio" x-model="cfg.printer.backend" value="network"> Netzwerk (LAN)
+          </label>
+        </div>
+      </div>
+      <div class="field" x-show="cfg.printer.backend !== 'network'">
         <label class="label">Gerätepfad</label>
         <input type="text" x-model="cfg.printer.device" placeholder="/dev/usb/lp0">
+      </div>
+      <div x-show="cfg.printer.backend === 'network'">
+        <div class="field">
+          <label class="label">IP-Adresse</label>
+          <input type="text" x-model="cfg.printer.host" placeholder="192.168.1.100">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label class="label">Port</label>
+          <input type="number" x-model.number="cfg.printer.port" placeholder="9100" min="1" max="65535">
+        </div>
       </div>
     </div>
 
@@ -353,6 +375,29 @@ input[type=number] { width: 90px; }
     </div>
   </div>
 
+  <!-- AdGuard Home -->
+  <div class="card">
+    <div class="card-title">AdGuard Home</div>
+    <div class="grid-2">
+      <div>
+        <div class="field">
+          <label class="label">URL</label>
+          <input type="text" x-model="cfg.adguard.url" placeholder="http://192.168.1.1:3000">
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label class="label">Benutzername</label>
+          <input type="text" x-model="cfg.adguard.username" placeholder="admin">
+        </div>
+        <div class="field">
+          <label class="label">Passwort</label>
+          <input type="password" x-model="cfg.adguard.password" placeholder="••••••••">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Backups -->
   <div class="card">
     <div class="card-title">Backups</div>
@@ -373,6 +418,30 @@ input[type=number] { width: 90px; }
       <div class="inline">
         <input type="number" x-model.number="cfg.backups.max_age_hours" min="1" max="720">
         <span class="hint" x-text="`= ${(cfg.backups.max_age_hours / 24).toFixed(1)} Tage`"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disk -->
+  <div class="card">
+    <div class="card-title">Disk</div>
+    <div class="field">
+      <label class="label">Mountpoints</label>
+      <div class="path-list">
+        <template x-for="(_, i) in cfg.disk.paths" :key="i">
+          <div class="path-row">
+            <input type="text" x-model="cfg.disk.paths[i]" placeholder="/mnt/tank">
+            <button class="btn-icon" @click="cfg.disk.paths.splice(i, 1)" title="Entfernen">✕</button>
+          </div>
+        </template>
+      </div>
+      <button class="btn-add" @click="cfg.disk.paths.push('')">+ Pfad hinzufügen</button>
+    </div>
+    <div class="field">
+      <label class="label">Warnschwelle</label>
+      <div class="inline">
+        <input type="number" x-model.number="cfg.disk.warn_percent" min="1" max="99">
+        <span class="hint">% belegt (FAIL ab 95 %)</span>
       </div>
     </div>
   </div>
@@ -406,7 +475,7 @@ input[type=number] { width: 90px; }
 <script>
 function app() {
   return {
-    cfg: { printer: {}, schedule: '', checks: {}, services: {}, backups: { paths: [], max_age_hours: 48 } },
+    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', checks: {}, services: {}, adguard: { url: '', username: '', password: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 } },
     saving: false,
     printing: false,
     printLog: '',
@@ -419,9 +488,11 @@ function app() {
       ['system',   'System',    'Uptime, CPU, RAM'],
       ['docker',   'Docker',    'Container-Status'],
       ['zfs',      'ZFS',       'Pool-Gesundheit'],
+      ['disk',     'Disk',      'Festplatten-Auslastung'],
       ['backups',  'Backups',   'Alter der Backup-Verzeichnisse'],
       ['network',  'Netzwerk',  'DNS, Reverse Proxy'],
       ['services', 'Services',  'Jellyfin, Immich'],
+      ['adguard',  'AdGuard',   'DNS-Statistiken'],
     ],
 
     async init() {

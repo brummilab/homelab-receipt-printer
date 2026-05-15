@@ -7,25 +7,41 @@ CONFIG_PATH = Path(os.environ.get("CONFIG_PATH", "/config/config.json"))
 
 def _defaults():
     return {
-        "printer": {"device": os.environ.get("PRINTER_DEVICE", "/dev/usb/lp0")},
+        "printer": {
+            "device":  os.environ.get("PRINTER_DEVICE", "/dev/usb/lp0"),
+            "backend": "usb",
+            "host":    "",
+            "port":    9100,
+        },
         "schedule": os.environ.get("CRON_SCHEDULE", "0 6 * * *"),
         "checks": {
-            "system": True,
-            "docker": True,
-            "zfs": True,
-            "backups": True,
-            "network": True,
+            "system":   True,
+            "docker":   True,
+            "zfs":      True,
+            "disk":     True,
+            "backups":  True,
+            "network":  True,
             "services": True,
+            "adguard":  True,
         },
         "services": {
-            "jellyfin_url": os.environ.get("JELLYFIN_URL", ""),
+            "jellyfin_url":     os.environ.get("JELLYFIN_URL", ""),
             "jellyfin_api_key": os.environ.get("JELLYFIN_API_KEY", ""),
-            "immich_url": os.environ.get("IMMICH_URL", ""),
-            "pangolin_url": os.environ.get("PANGOLIN_URL", ""),
+            "immich_url":       os.environ.get("IMMICH_URL", ""),
+            "pangolin_url":     os.environ.get("PANGOLIN_URL", ""),
+        },
+        "adguard": {
+            "url":      os.environ.get("ADGUARD_URL", ""),
+            "username": os.environ.get("ADGUARD_USER", ""),
+            "password": os.environ.get("ADGUARD_PASS", ""),
         },
         "backups": {
-            "paths": [p.strip() for p in os.environ.get("BACKUP_PATHS", "").split(",") if p.strip()],
+            "paths":        [p.strip() for p in os.environ.get("BACKUP_PATHS", "").split(",") if p.strip()],
             "max_age_hours": 48,
+        },
+        "disk": {
+            "paths":        [],
+            "warn_percent": 85,
         },
     }
 

@@ -29,6 +29,11 @@ IMMICH_URL      = _cfg["services"]["immich_url"]
 PANGOLIN_URL    = _cfg["services"]["pangolin_url"]
 BACKUP_PATHS    = _cfg["backups"]["paths"]
 BACKUP_MAX_AGE  = _cfg["backups"]["max_age_hours"]
+DISK_PATHS      = _cfg["disk"]["paths"]
+DISK_WARN_PCT   = _cfg["disk"]["warn_percent"]
+ADGUARD_URL     = _cfg["adguard"]["url"].rstrip("/")
+ADGUARD_USER    = _cfg["adguard"]["username"]
+ADGUARD_PASS    = _cfg["adguard"]["password"]
 
 TIMEOUT = 5  # seconds for HTTP checks
 
@@ -119,6 +124,54 @@ def check_zfs():
         results.append(warn("ZFS", "zpool not available in container"))
     except Exception as e:
         results.append(fail("ZFS", str(e)[:30]))
+    return results
+
+
+def check_disk():
+    results = []
+    for path in DISK_PATHS:
+        path = path.strip()
+        if not path:
+            continue
+        try:
+            usage = psutil.disk_usage(path)
+            used_gb = usage.used / 1e9
+            total_gb = usage.total / 1e9
+            pct = usage.percent
+            name = path if path == "/" else path.rstrip("/").split("/")[-1]
+            detail = f"{used_gb:.0f}/{total_gb:.0f}GB ({pct:.0f}%)"
+            if pct >= 95:
+                results.append(fail(f"Disk/{name}", detail))
+            elif pct >= DISK_WARN_PCT:
+                results.append(warn(f"Disk/{name}", detail))
+            else:
+                results.append(ok(f"Disk/{name}", detail))
+        except Exception as e:
+            results.append(fail(f"Disk/{path[-12:]}", str(e)[:20]))
+    if not results:
+        results.append(warn("Disk", "No paths configured"))
+    return results
+
+
+def check_adguard():
+    results = []
+    if not ADGUARD_URL:
+        results.append(warn("AdGuard", "URL not configured"))
+        return results
+    try:
+        auth = (ADGUARD_USER, ADGUARD_PASS) if ADGUARD_USER else None
+        r = requests.get(f"{ADGUARD_URL}/control/stats", auth=auth, timeout=TIMEOUT)
+        if r.status_code == 200:
+            data = r.json()
+            queries = data.get("num_dns_queries", 0)
+            blocked = data.get("num_blocked_filtering", 0)
+            pct = (blocked / queries * 100) if queries > 0 else 0
+            results.append(ok("Queries", f"{queries:,}"))
+            results.append(ok("Blocked", f"{blocked:,} ({pct:.0f}%)"))
+        else:
+            results.append(warn("AdGuard", f"HTTP {r.status_code}"))
+    except Exception:
+        results.append(fail("AdGuard", "unreachable"))
     return results
 
 
@@ -215,11 +268,18 @@ def print_report(sections: dict):
 
     attention = [r for r in all_results if r[0] in ("FAIL", "WARN")]
 
+    backend = _cfg["printer"].get("backend", "usb")
     try:
-        p = EscFile(PRINTER_DEVICE)
+        if backend == "network":
+            from escpos.printer import Network
+            host = _cfg["printer"].get("host", "")
+            port = int(_cfg["printer"].get("port", 9100))
+            p = Network(host, port)
+        else:
+            p = EscFile(PRINTER_DEVICE)
     except Exception as e:
-        print(f"ERROR: Cannot open printer {PRINTER_DEVICE}: {e}", file=sys.stderr)
-        # Print to stdout as fallback
+        label = f"{_cfg['printer'].get('host')}:{_cfg['printer'].get('port', 9100)}" if backend == "network" else PRINTER_DEVICE
+        print(f"ERROR: Cannot open printer {label}: {e}", file=sys.stderr)
         print_to_stdout(now, date_str, time_str, overall, attention, sections)
         return
 
@@ -269,9 +329,11 @@ def print_report(sections: dict):
         "system":   "System",
         "docker":   "Docker",
         "zfs":      "Storage / ZFS",
+        "disk":     "Disk",
         "backups":  "Backups",
         "network":  "Network",
         "services": "Services",
+        "adguard":  "AdGuard Home",
     }
 
     for key, items in sections.items():
@@ -300,9 +362,11 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
         "system":   "System",
         "docker":   "Docker",
         "zfs":      "Storage / ZFS",
+        "disk":     "Disk",
         "backups":  "Backups",
         "network":  "Network",
         "services": "Services",
+        "adguard":  "AdGuard Home",
     }
     print("=" * 32)
     print("Homelab Daily Health")
@@ -336,9 +400,11 @@ if __name__ == "__main__":
         "system":   check_system,
         "docker":   check_docker,
         "zfs":      check_zfs,
+        "disk":     check_disk,
         "backups":  check_backups,
         "network":  check_network,
         "services": check_services,
+        "adguard":  check_adguard,
     }
     sections = {
         key: fn()
