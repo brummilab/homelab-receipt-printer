@@ -1,11 +1,21 @@
 #!/bin/sh
 set -e
 
-SCHEDULE="${CRON_SCHEDULE:-0 6 * * *}"
+CONFIG=/config/config.json
+
+# Prefer saved schedule from config over env var
+if [ -f "$CONFIG" ]; then
+    SCHEDULE=$(python3 -c "import json; print(json.load(open('$CONFIG'))['schedule'])" 2>/dev/null || echo "${CRON_SCHEDULE:-0 6 * * *}")
+else
+    SCHEDULE="${CRON_SCHEDULE:-0 6 * * *}"
+fi
 
 echo "$SCHEDULE python /app/healthcheck.py >> /var/log/receipt.log 2>&1" > /etc/crontabs/root
 
 echo "Receipt printer scheduled: $SCHEDULE"
+echo "Starting web UI on :8080..."
+python /app/webui.py &
+
 echo "Running initial check in 10 seconds..."
 sleep 10
 python /app/healthcheck.py || true

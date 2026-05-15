@@ -9,11 +9,15 @@ RUN pip install --no-cache-dir \
     python-escpos \
     psutil \
     requests \
-    docker
+    docker \
+    flask
 
 WORKDIR /app
-COPY healthcheck.py .
+COPY config.py webui.py healthcheck.py ./
 COPY entrypoint.sh .
+COPY templates/ templates/
 RUN chmod +x entrypoint.sh
+
+EXPOSE 8080
 
 ENTRYPOINT ["/app/entrypoint.sh"]

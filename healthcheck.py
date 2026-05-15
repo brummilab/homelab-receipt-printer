@@ -16,13 +16,18 @@ import requests
 import docker
 from escpos.printer import File as EscFile
 
+import config as _config
+
 # ── Config ────────────────────────────────────────────────────────────────────
-PRINTER_DEVICE  = os.environ.get("PRINTER_DEVICE", "/dev/usb/lp0")
-JELLYFIN_URL    = os.environ.get("JELLYFIN_URL", "http://192.168.1.50:8096")
-JELLYFIN_KEY    = os.environ.get("JELLYFIN_API_KEY", "")
-IMMICH_URL      = os.environ.get("IMMICH_URL", "http://192.168.1.50:30041")
-PANGOLIN_URL    = os.environ.get("PANGOLIN_URL", "https://brummilab.org")
-BACKUP_PATHS    = os.environ.get("BACKUP_PATHS", "").split(",")
+_cfg = _config.load()
+
+PRINTER_DEVICE  = _cfg["printer"]["device"]
+JELLYFIN_URL    = _cfg["services"]["jellyfin_url"]
+JELLYFIN_KEY    = _cfg["services"]["jellyfin_api_key"]
+IMMICH_URL      = _cfg["services"]["immich_url"]
+PANGOLIN_URL    = _cfg["services"]["pangolin_url"]
+BACKUP_PATHS    = _cfg["backups"]["paths"]
+BACKUP_MAX_AGE  = _cfg["backups"]["max_age_hours"]
 
 TIMEOUT = 5  # seconds for HTTP checks
 
@@ -119,7 +124,6 @@ def check_zfs():
 def check_backups():
     results = []
     now = time.time()
-    max_age_hours = 48  # warn if backup older than 2 days
 
     for path in BACKUP_PATHS:
         path = path.strip()
@@ -129,7 +133,7 @@ def check_backups():
             stat = os.stat(path)
             age_h = (now - stat.st_mtime) / 3600
             name = os.path.basename(path) or path
-            if age_h < max_age_hours:
+            if age_h < BACKUP_MAX_AGE:
                 results.append(ok(f"Backup/{name}", f"{age_h:.0f}h ago"))
             else:
                 results.append(warn(f"Backup/{name}", f"{age_h:.0f}h ago!"))
@@ -316,13 +320,19 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
 if __name__ == "__main__":
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Running healthcheck...")
 
+    checks = _cfg.get("checks", {})
+    section_fns = {
+        "system":   check_system,
+        "docker":   check_docker,
+        "zfs":      check_zfs,
+        "backups":  check_backups,
+        "network":  check_network,
+        "services": check_services,
+    }
     sections = {
-        "system":   check_system(),
-        "docker":   check_docker(),
-        "zfs":      check_zfs(),
-        "backups":  check_backups(),
-        "network":  check_network(),
-        "services": check_services(),
+        key: fn()
+        for key, fn in section_fns.items()
+        if checks.get(key, True)
     }
 
     print_report(sections)

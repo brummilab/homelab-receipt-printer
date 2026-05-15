@@ -1,0 +1,50 @@
+import json
+import os
+from pathlib import Path
+
+CONFIG_PATH = Path(os.environ.get("CONFIG_PATH", "/config/config.json"))
+
+
+def _defaults():
+    return {
+        "printer": {"device": os.environ.get("PRINTER_DEVICE", "/dev/usb/lp0")},
+        "schedule": os.environ.get("CRON_SCHEDULE", "0 6 * * *"),
+        "checks": {
+            "system": True,
+            "docker": True,
+            "zfs": True,
+            "backups": True,
+            "network": True,
+            "services": True,
+        },
+        "services": {
+            "jellyfin_url": os.environ.get("JELLYFIN_URL", ""),
+            "jellyfin_api_key": os.environ.get("JELLYFIN_API_KEY", ""),
+            "immich_url": os.environ.get("IMMICH_URL", ""),
+            "pangolin_url": os.environ.get("PANGOLIN_URL", ""),
+        },
+        "backups": {
+            "paths": [p.strip() for p in os.environ.get("BACKUP_PATHS", "").split(",") if p.strip()],
+            "max_age_hours": 48,
+        },
+    }
+
+
+def load():
+    defaults = _defaults()
+    if not CONFIG_PATH.exists():
+        return defaults
+    with open(CONFIG_PATH) as f:
+        saved = json.load(f)
+    for key, default_val in defaults.items():
+        if key not in saved:
+            saved[key] = default_val
+        elif isinstance(default_val, dict):
+            saved[key] = {**default_val, **saved[key]}
+    return saved
+
+
+def save(cfg):
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(CONFIG_PATH, "w") as f:
+        json.dump(cfg, f, indent=2)

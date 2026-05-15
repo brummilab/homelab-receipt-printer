@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receipt Printer · brummilab</title>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0d1117;
+  --surface: #161b22;
+  --border:  #30363d;
+  --accent:  #2d7ef7;
+  --success: #3fb950;
+  --danger:  #f85149;
+  --warn:    #d29922;
+  --text:    #e6edf3;
+  --muted:   #8b949e;
+  --radius:  8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 72px;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.header-icon { font-size: 22px; }
+.header h1  { font-size: 17px; font-weight: 600; line-height: 1; }
+.header sub { color: var(--muted); font-size: 12px; }
+
+/* ── Layout ── */
+.main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: grid;
+  gap: 16px;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 620px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ── Form fields ── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+input[type=text],
+input[type=password],
+input[type=number] {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color .15s;
+}
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=number]:focus { border-color: var(--accent); }
+input[type=number] { width: 90px; }
+
+/* ── Toggles ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 14px; font-weight: 500; }
+.toggle-sub   { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0;
+  background: var(--border);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+/* ── Backup paths ── */
+.path-list { display: grid; gap: 8px; margin-bottom: 8px; }
+.path-row  { display: flex; gap: 8px; }
+.path-row input { flex: 1; }
+
+.btn-icon {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 8px 11px;
+  font-size: 13px;
+  line-height: 1;
+  transition: border-color .15s, color .15s;
+}
+.btn-icon:hover { border-color: var(--danger); color: var(--danger); }
+
+.btn-add {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 8px;
+  width: 100%;
+  font-size: 13px;
+  transition: border-color .15s, color .15s;
+}
+.btn-add:hover { border-color: var(--accent); color: var(--accent); }
+
+.inline { display: flex; align-items: center; gap: 10px; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: .45; cursor: default; pointer-events: none; }
+
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: .85; }
+
+/* ── Action bar ── */
+.action-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+}
+
+/* ── Log box ── */
+.log-box {
+  margin-top: 14px;
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: "Cascadia Code", "Fira Code", "Courier New", monospace;
+  font-size: 12px;
+  color: #57f287;
+  white-space: pre-wrap;
+  max-height: 220px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+.log-box.err { color: var(--danger); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  top: 66px; right: 16px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 99;
+  color: #fff;
+  pointer-events: none;
+}
+.toast.ok  { background: var(--success); }
+.toast.err { background: var(--danger); }
+</style>
+</head>
+
+<body x-data="app()" x-init="init()">
+
+<!-- Header -->
+<div class="header">
+  <span class="header-icon">🖨️</span>
+  <div>
+    <h1>Receipt Printer</h1>
+    <sub>brummilab</sub>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Drucker & Zeitplan -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Drucker</div>
+      <div class="field">
+        <label class="label">Gerätepfad</label>
+        <input type="text" x-model="cfg.printer.device" placeholder="/dev/usb/lp0">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Zeitplan</div>
+      <div class="field">
+        <label class="label">Cron-Ausdruck</label>
+        <input type="text" x-model="cfg.schedule" placeholder="0 6 * * *">
+        <div class="hint" x-text="cronHint()"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sektionen -->
+  <div class="card">
+    <div class="card-title">Sektionen</div>
+    <template x-for="[key, label, sub] in sections" :key="key">
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label" x-text="label"></div>
+          <div class="toggle-sub" x-text="sub"></div>
+        </div>
+        <label class="switch">
+          <input type="checkbox"
+                 :checked="cfg.checks && cfg.checks[key]"
+                 @change="cfg.checks[key] = $event.target.checked">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </template>
+  </div>
+
+  <!-- Services -->
+  <div class="card">
+    <div class="card-title">Services</div>
+    <div class="grid-2">
+      <div>
+        <div class="field">
+          <label class="label">Jellyfin URL</label>
+          <input type="text" x-model="cfg.services.jellyfin_url" placeholder="http://192.168.1.50:8096">
+        </div>
+        <div class="field">
+          <label class="label">Jellyfin API-Key</label>
+          <input type="password" x-model="cfg.services.jellyfin_api_key" placeholder="••••••••">
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label class="label">Immich URL</label>
+          <input type="text" x-model="cfg.services.immich_url" placeholder="http://192.168.1.50:30041">
+        </div>
+        <div class="field">
+          <label class="label">Pangolin URL</label>
+          <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backups -->
+  <div class="card">
+    <div class="card-title">Backups</div>
+    <div class="field">
+      <label class="label">Pfade</label>
+      <div class="path-list">
+        <template x-for="(_, i) in cfg.backups.paths" :key="i">
+          <div class="path-row">
+            <input type="text" x-model="cfg.backups.paths[i]" placeholder="/backups/immich">
+            <button class="btn-icon" @click="cfg.backups.paths.splice(i, 1)" title="Entfernen">✕</button>
+          </div>
+        </template>
+      </div>
+      <button class="btn-add" @click="cfg.backups.paths.push('')">+ Pfad hinzufügen</button>
+    </div>
+    <div class="field">
+      <label class="label">Max. Alter (Stunden)</label>
+      <div class="inline">
+        <input type="number" x-model.number="cfg.backups.max_age_hours" min="1" max="720">
+        <span class="hint" x-text="`= ${(cfg.backups.max_age_hours / 24).toFixed(1)} Tage`"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jetzt drucken -->
+  <div class="card">
+    <div class="card-title">Jetzt drucken</div>
+    <button class="btn btn-ghost" @click="printNow()" :disabled="printing">
+      <span x-show="!printing">🖨 Bon drucken</span>
+      <span x-show="printing">Drucke…</span>
+    </button>
+    <div x-show="printLog" class="log-box" :class="{'err': !printOk}" x-text="printLog"></div>
+  </div>
+
+</div>
+
+<!-- Action bar -->
+<div class="action-bar">
+  <button class="btn btn-ghost" @click="init()">Zurücksetzen</button>
+  <button class="btn btn-primary" @click="save()" :disabled="saving">
+    <span x-show="!saving">Speichern</span>
+    <span x-show="saving">Speichert…</span>
+  </button>
+</div>
+
+<!-- Toast -->
+<div class="toast" :class="toast.type" x-show="toast.show" x-text="toast.msg"
+     x-transition:enter="transition ease-out duration-150"
+     x-transition:leave="transition ease-in duration-200"></div>
+
+<script>
+function app() {
+  return {
+    cfg: { printer: {}, schedule: '', checks: {}, services: {}, backups: { paths: [], max_age_hours: 48 } },
+    saving: false,
+    printing: false,
+    printLog: '',
+    printOk: true,
+    toast: { show: false, msg: '', type: 'ok' },
+
+    sections: [
+      ['system',   'System',    'Uptime, CPU, RAM'],
+      ['docker',   'Docker',    'Container-Status'],
+      ['zfs',      'ZFS',       'Pool-Gesundheit'],
+      ['backups',  'Backups',   'Alter der Backup-Verzeichnisse'],
+      ['network',  'Netzwerk',  'DNS, Reverse Proxy'],
+      ['services', 'Services',  'Jellyfin, Immich'],
+    ],
+
+    async init() {
+      const r = await fetch('/api/config');
+      this.cfg = await r.json();
+    },
+
+    async save() {
+      this.saving = true;
+      try {
+        const r = await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.cfg),
+        });
+        const d = await r.json();
+        d.ok ? this.showToast('Gespeichert ✓', 'ok') : this.showToast(d.error || 'Fehler', 'err');
+      } catch {
+        this.showToast('Netzwerkfehler', 'err');
+      }
+      this.saving = false;
+    },
+
+    async printNow() {
+      this.printing = true;
+      this.printLog = '';
+      try {
+        const r = await fetch('/api/print', { method: 'POST' });
+        const d = await r.json();
+        this.printOk = d.ok;
+        this.printLog = d.log || (d.ok ? 'Bon gedruckt.' : 'Fehler beim Drucken.');
+      } catch {
+        this.printOk = false;
+        this.printLog = 'Netzwerkfehler';
+      }
+      this.printing = false;
+    },
+
+    cronHint() {
+      const parts = (this.cfg.schedule || '').trim().split(/\s+/);
+      if (parts.length !== 5) return 'Ungültiger Ausdruck';
+      const [min, hour, dom, month, dow] = parts;
+      const isNum = s => /^\d+$/.test(s);
+      if (dom === '*' && month === '*' && dow === '*' && isNum(hour) && isNum(min))
+        return `Täglich um ${hour.padStart(2,'0')}:${min.padStart(2,'0')} Uhr`;
+      if (dom === '*' && month === '*' && isNum(dow) && isNum(hour) && isNum(min)) {
+        const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+        return `Jeden ${days[+dow] ?? dow} um ${hour.padStart(2,'0')}:${min.padStart(2,'0')} Uhr`;
+      }
+      return 'Benutzerdefinierter Zeitplan';
+    },
+
+    showToast(msg, type) {
+      this.toast = { show: true, msg, type };
+      setTimeout(() => this.toast.show = false, 3000);
+    },
+  };
+}
+</script>
+</body>
+</html>
