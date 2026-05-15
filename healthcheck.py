@@ -78,24 +78,23 @@ def check_docker():
     results = []
     try:
         client = docker.from_env()
-        containers = client.containers.list(all=True)
-        running = [c for c in containers if c.status == "running"]
-        stopped = [c for c in containers if c.status not in ("running", "exited") or
-                   (c.status == "exited" and c.attrs.get("HostConfig", {}).get("RestartPolicy", {}).get("Name") not in ("no", ""))]
+        containers = sorted(client.containers.list(all=True), key=lambda c: c.name)
+        running_count = sum(1 for c in containers if c.status == "running")
+        results.append(ok("Running", f"{running_count}/{len(containers)}"))
 
-        # Find unhealthy / unexpected stops
-        bad = [c for c in containers
-               if c.status == "exited"
-               and c.attrs.get("HostConfig", {}).get("RestartPolicy", {}).get("Name", "no") != "no"]
-
-        results.append(ok("Running", f"{len(running)}/{len(containers)}"))
-
-        if bad:
-            for c in bad[:3]:
-                results.append(warn("Stopped", c.name[:20]))
-        else:
-            results.append(ok("All containers", "healthy"))
-
+        for c in containers:
+            name = c.name[:16]
+            health = c.attrs.get("State", {}).get("Health", {}).get("Status", "")
+            restart = c.attrs.get("HostConfig", {}).get("RestartPolicy", {}).get("Name", "no")
+            if c.status == "running":
+                if health == "unhealthy":
+                    results.append(warn(name, "unhealthy"))
+                else:
+                    results.append(ok(name, "running"))
+            elif c.status == "exited" and restart not in ("no", ""):
+                results.append(warn(name, "stopped!"))
+            else:
+                results.append(ok(name, c.status))
     except Exception as e:
         results.append(fail("Docker", str(e)[:30]))
     return results
