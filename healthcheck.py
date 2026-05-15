@@ -10,6 +10,7 @@ import time
 import socket
 import subprocess
 from datetime import datetime, timezone
+from pathlib import Path
 
 import psutil
 import requests
@@ -221,6 +222,16 @@ def print_report(sections: dict):
         # Print to stdout as fallback
         print_to_stdout(now, date_str, time_str, overall, attention, sections)
         return
+
+    # Logo
+    logo = Path("/config/logo.png")
+    if logo.exists():
+        try:
+            p.set(align="center")
+            p.image(str(logo))
+            p.text("\n")
+        except Exception as e:
+            print(f"Warning: logo print failed: {e}", file=sys.stderr)
 
     # Header
     p.set(align="center", bold=True, double_height=False, double_width=False)

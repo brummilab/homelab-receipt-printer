@@ -281,6 +281,32 @@ input[type=number] { width: 90px; }
     </div>
   </div>
 
+  <!-- Logo -->
+  <div class="card">
+    <div class="card-title">Logo</div>
+    <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+      <div style="flex:0 0 auto;">
+        <div x-show="logoUrl" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;display:inline-block;margin-bottom:10px;">
+          <img :src="logoUrl" style="max-width:180px;max-height:100px;display:block;image-rendering:pixelated;">
+        </div>
+        <div x-show="!logoUrl" style="background:var(--bg);border:1px dashed var(--border);border-radius:6px;padding:20px 32px;color:var(--muted);font-size:13px;text-align:center;margin-bottom:10px;">
+          Kein Logo
+        </div>
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;" class="btn btn-ghost">
+          <span x-show="!logoUploading">Bild hochladen</span>
+          <span x-show="logoUploading">Lädt hoch…</span>
+          <input type="file" accept="image/*" style="display:none" :disabled="logoUploading" @change="uploadLogo($event)">
+        </label>
+      </div>
+      <div style="flex:1;min-width:160px;color:var(--muted);font-size:12px;line-height:1.7;padding-top:4px;">
+        Wird oben auf dem Bon gedruckt.<br>
+        Empfohlen: quadratisch, hoher Kontrast.<br>
+        Wird auf max. 400 px Breite skaliert.<br>
+        Gespeichert unter <code style="font-size:11px;">/config/logo.png</code>
+      </div>
+    </div>
+  </div>
+
   <!-- Sektionen -->
   <div class="card">
     <div class="card-title">Sektionen</div>
@@ -385,6 +411,8 @@ function app() {
     printing: false,
     printLog: '',
     printOk: true,
+    logoUrl: null,
+    logoUploading: false,
     toast: { show: false, msg: '', type: 'ok' },
 
     sections: [
@@ -399,6 +427,30 @@ function app() {
     async init() {
       const r = await fetch('/api/config');
       this.cfg = await r.json();
+      const lr = await fetch('/api/logo');
+      this.logoUrl = lr.status === 200 ? `/api/logo?t=${Date.now()}` : null;
+    },
+
+    async uploadLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      this.logoUploading = true;
+      const fd = new FormData();
+      fd.append('logo', file);
+      try {
+        const r = await fetch('/api/logo', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (d.ok) {
+          this.logoUrl = `/api/logo?t=${Date.now()}`;
+          this.showToast('Logo gespeichert ✓', 'ok');
+        } else {
+          this.showToast(d.error || 'Fehler', 'err');
+        }
+      } catch {
+        this.showToast('Netzwerkfehler', 'err');
+      }
+      this.logoUploading = false;
+      event.target.value = '';
     },
 
     async save() {

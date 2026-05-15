@@ -1,10 +1,14 @@
 import re
 import subprocess
 import sys
+from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
+from PIL import Image
 
 import config
+
+LOGO_PATH = Path("/config/logo.png")
 
 app = Flask(__name__)
 
@@ -41,6 +45,30 @@ def api_print():
         capture_output=True, text=True, timeout=60,
     )
     return jsonify({"ok": r.returncode == 0, "log": r.stdout + r.stderr})
+
+
+@app.get("/api/logo")
+def api_logo_get():
+    if not LOGO_PATH.exists():
+        return "", 204
+    return send_file(LOGO_PATH, mimetype="image/png")
+
+
+@app.post("/api/logo")
+def api_logo_upload():
+    f = request.files.get("logo")
+    if not f:
+        return jsonify({"ok": False, "error": "Keine Datei"}), 400
+    try:
+        img = Image.open(f).convert("L")  # grayscale — optimal for thermal
+        w, h = img.size
+        if w > 400:
+            img = img.resize((400, int(h * 400 / w)), Image.LANCZOS)
+        LOGO_PATH.parent.mkdir(parents=True, exist_ok=True)
+        img.save(LOGO_PATH, "PNG")
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
 
 
 def _write_cron(schedule: str):
