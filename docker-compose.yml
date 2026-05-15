@@ -1,0 +1,23 @@
+services:
+  receipt-printer:
+    image: receipt-printer:latest
+    pull_policy: never
+    container_name: receipt-printer
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Vienna
+      - PRINTER_DEVICE=/dev/usb/lp0
+      - CRON_SCHEDULE=0 6 * * *
+      # Service endpoints
+      - JELLYFIN_URL=http://192.168.1.50:8096
+      - JELLYFIN_API_KEY=JELLYFIN_API_KEY_REMOVED
+      - IMMICH_URL=http://192.168.1.50:30041
+      - PANGOLIN_URL=https://brummilab.org
+      # Backup paths to check (last-modified timestamp)
+      - BACKUP_PATHS=/backups/immich,/backups/musik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/tank/media:/backups:ro
+    devices:
+      - /dev/usb/lp0:/dev/usb/lp0
+    privileged: false
