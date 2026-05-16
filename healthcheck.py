@@ -8,7 +8,6 @@ import os
 import sys
 import time
 import socket
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,6 +34,8 @@ DISK_WARN_PCT   = _cfg["disk"]["warn_percent"]
 ADGUARD_URL     = _cfg["adguard"]["url"].rstrip("/")
 ADGUARD_USER    = _cfg["adguard"]["username"]
 ADGUARD_PASS    = _cfg["adguard"]["password"]
+TRUENAS_URL     = _cfg["truenas"]["url"].rstrip("/")
+TRUENAS_KEY     = _cfg["truenas"]["api_key"]
 WEBSITE_URLS       = _cfg["websites"]["urls"]
 DOCKER_EXCLUDE     = [p.lower() for p in _cfg["docker"]["exclude"]]
 
@@ -111,27 +112,27 @@ def check_docker():
 
 def check_zfs():
     results = []
+    if not TRUENAS_URL or not TRUENAS_KEY:
+        results.append(warn("TrueNAS", "URL/API key not configured"))
+        return results
     try:
-        out = subprocess.check_output(
-            ["zpool", "status", "-x"], text=True, timeout=10
+        r = requests.get(
+            f"{TRUENAS_URL}/api/v2.0/pool",
+            headers={"Authorization": f"Bearer {TRUENAS_KEY}"},
+            timeout=TIMEOUT,
         )
-        if "all pools are healthy" in out.lower():
-            results.append(ok("ZFS Pool", "all healthy"))
+        if r.status_code == 200:
+            for pool in r.json():
+                name = pool.get("name", "?")
+                status = pool.get("status", "UNKNOWN")
+                if status == "ONLINE":
+                    results.append(ok(f"ZFS {name}", status))
+                else:
+                    results.append(fail(f"ZFS {name}", status))
         else:
-            # Parse pool names and states
-            for line in out.splitlines():
-                line = line.strip()
-                if line.startswith("pool:"):
-                    pool = line.split(":", 1)[1].strip()
-                elif line.startswith("state:"):
-                    state = line.split(":", 1)[1].strip()
-                    level = ok if state == "ONLINE" else fail
-                    results.append(level(f"ZFS {pool}", state))
-    except FileNotFoundError:
-        # zpool not in container — read from /proc or skip
-        results.append(warn("ZFS", "zpool not available in container"))
-    except Exception as e:
-        results.append(fail("ZFS", str(e)[:30]))
+            results.append(warn("TrueNAS", f"HTTP {r.status_code}"))
+    except Exception:
+        results.append(fail("TrueNAS", "unreachable"))
     return results
 
 

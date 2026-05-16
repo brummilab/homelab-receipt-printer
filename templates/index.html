@@ -436,6 +436,25 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </div>
   </div>
 
+  <!-- TrueNAS -->
+  <div class="card">
+    <div class="card-title">TrueNAS</div>
+    <div class="grid-2">
+      <div>
+        <div class="field">
+          <label class="label">URL</label>
+          <input type="text" x-model="cfg.truenas.url" placeholder="http://192.168.1.50">
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label class="label">API-Key</label>
+          <input type="password" x-model="cfg.truenas.api_key" placeholder="••••••••">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AdGuard Home -->
   <div class="card">
     <div class="card-title">AdGuard Home</div>
@@ -580,7 +599,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 <script>
 function app() {
   return {
-    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', checks: {}, services: {}, adguard: { url: '', username: '', password: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
+    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', checks: {}, services: {}, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
     saving: false,
     printing: false,
     printLog: '',

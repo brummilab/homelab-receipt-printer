@@ -37,6 +37,10 @@ def _defaults():
             "username": os.environ.get("ADGUARD_USER", ""),
             "password": os.environ.get("ADGUARD_PASS", ""),
         },
+        "truenas": {
+            "url":     os.environ.get("TRUENAS_URL", "http://192.168.1.50"),
+            "api_key": os.environ.get("TRUENAS_API_KEY", ""),
+        },
         "backups": {
             "paths":        [p.strip() for p in os.environ.get("BACKUP_PATHS", "").split(",") if p.strip()],
             "max_age_hours": 48,

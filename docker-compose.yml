@@ -20,6 +20,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/tank/media:/backups:ro
+      - /mnt/tank:/mnt/tank:ro
       - receipt-printer-config:/config
     devices:
       - /dev/usb/lp0:/dev/usb/lp0

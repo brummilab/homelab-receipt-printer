@@ -84,8 +84,12 @@ def api_logo_upload():
 
 
 def _write_cron(schedule: str):
-    with open("/etc/crontabs/root", "w") as f:
+    import os as _os
+    path = "/var/spool/cron/crontabs/root"
+    _os.makedirs("/var/spool/cron/crontabs", exist_ok=True)
+    with open(path, "w") as f:
         f.write(f"{schedule} python /app/healthcheck.py >> /var/log/receipt.log 2>&1\n")
+    _os.chmod(path, 0o600)
 
 
 if __name__ == "__main__":

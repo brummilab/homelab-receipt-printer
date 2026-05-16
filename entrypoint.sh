@@ -10,7 +10,9 @@ else
     SCHEDULE="${CRON_SCHEDULE:-0 6 * * *}"
 fi
 
-echo "$SCHEDULE python /app/healthcheck.py >> /var/log/receipt.log 2>&1" > /etc/crontabs/root
+mkdir -p /var/spool/cron/crontabs
+echo "$SCHEDULE python /app/healthcheck.py >> /var/log/receipt.log 2>&1" > /var/spool/cron/crontabs/root
+chmod 600 /var/spool/cron/crontabs/root
 
 echo "Receipt printer scheduled: $SCHEDULE"
 echo "Starting web UI on :8080..."
@@ -20,4 +22,4 @@ echo "Running initial check in 10 seconds..."
 sleep 10
 python /app/healthcheck.py || true
 
-exec crond -f -l 2
+exec cron -f
