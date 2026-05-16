@@ -314,6 +314,8 @@ def print_report(sections: dict):
         if backend == "network":
             from escpos.printer import Network
             host = _cfg["printer"].get("host", "")
+            if not host:
+                raise ValueError("Printer host is empty")
             port = int(_cfg["printer"].get("port", 9100))
             p = Network(host, port)
         else:
@@ -324,78 +326,83 @@ def print_report(sections: dict):
         print_to_stdout(now, date_str, time_str, overall, attention, sections)
         return
 
-    # Logo
-    logo = Path("/config/logo.png")
-    if logo.exists():
-        try:
-            p.set(align="center")
-            p.image(str(logo))
-            p.text("\n")
-        except Exception as e:
-            print(f"Warning: logo print failed: {e}", file=sys.stderr)
+    try:
+        # Logo
+        logo = Path("/config/logo.png")
+        if logo.exists():
+            try:
+                p.set(align="center")
+                p.image(str(logo))
+                p.text("\n")
+            except Exception as e:
+                print(f"Warning: logo print failed: {e}", file=sys.stderr)
 
-    # Header
-    p.set(align="center", bold=True, double_height=False, double_width=False)
-    p.text("Homelab Daily Health\n")
-    p.set(align="center", bold=False)
-    p.text(f"{date_str}\n")
-    p.text(f"Generated: {time_str}\n")
-    p.text("-" * 32 + "\n")
+        # Header
+        p.set(align="center", bold=True, double_height=False, double_width=False)
+        p.text("Homelab Daily Health\n")
+        p.set(align="center", bold=False)
+        p.text(f"{date_str}\n")
+        p.text(f"Generated: {time_str}\n")
+        p.text("-" * 32 + "\n")
 
-    # Overall
-    p.set(align="center", bold=True)
-    status_line = f"Overall: {overall}"
-    p.text(status_line + "\n")
-    p.set(align="left", bold=False)
-    p.text("-" * 32 + "\n")
+        # Overall
+        p.set(align="center", bold=True)
+        status_line = f"Overall: {overall}"
+        p.text(status_line + "\n")
+        p.set(align="left", bold=False)
+        p.text("-" * 32 + "\n")
 
-    # Needs attention
-    p.set(bold=True)
-    p.text("Needs attention\n")
-    p.set(bold=False)
-    if attention:
-        for status, label, detail in attention:
-            marker = "!!" if status == "FAIL" else " !"
-            line = f"{marker} {label}"
-            if detail:
-                line += f": {detail}"
-            p.text(line[:32] + "\n")
-    else:
-        p.text("- None\n")
-
-    p.text("-" * 32 + "\n")
-
-    # Sections
-    section_labels = {
-        "system":   "System",
-        "docker":   "Docker",
-        "zfs":      "Storage / ZFS",
-        "disk":     "Disk",
-        "backups":  "Backups",
-        "network":  "Network",
-        "services": "Services",
-        "websites": "Websites",
-        "adguard":  "AdGuard Home",
-    }
-
-    for key, items in sections.items():
+        # Needs attention
         p.set(bold=True)
-        p.text(section_labels.get(key, key) + "\n")
+        p.text("Needs attention\n")
         p.set(bold=False)
-        for status, label, detail in items:
-            marker = "OK" if status == "OK" else ("!!" if status == "FAIL" else " !")
-            line = f"[{marker}] {label}"
-            if detail:
-                line += f": {detail}"
-            p.text(line[:32] + "\n")
+        if attention:
+            for status, label, detail in attention:
+                marker = "!!" if status == "FAIL" else " !"
+                line = f"{marker} {label}"
+                if detail:
+                    line += f": {detail}"
+                p.text(line[:32] + "\n")
+        else:
+            p.text("- None\n")
 
-    # Footer
-    p.text("-" * 32 + "\n")
-    p.set(align="center")
-    p.text("brummilab\n")
-    p.text("\n\n\n")
-    p.cut()
-    print(f"[{time_str}] Receipt printed. Overall: {overall}")
+        p.text("-" * 32 + "\n")
+
+        # Sections
+        section_labels = {
+            "system":   "System",
+            "docker":   "Docker",
+            "zfs":      "Storage / ZFS",
+            "disk":     "Disk",
+            "backups":  "Backups",
+            "network":  "Network",
+            "services": "Services",
+            "websites": "Websites",
+            "adguard":  "AdGuard Home",
+        }
+
+        for key, items in sections.items():
+            p.set(bold=True)
+            p.text(section_labels.get(key, key) + "\n")
+            p.set(bold=False)
+            for status, label, detail in items:
+                marker = "OK" if status == "OK" else ("!!" if status == "FAIL" else " !")
+                line = f"[{marker}] {label}"
+                if detail:
+                    line += f": {detail}"
+                p.text(line[:32] + "\n")
+
+        # Footer
+        p.text("-" * 32 + "\n")
+        p.set(align="center")
+        p.text("brummilab\n")
+        p.text("\n\n\n")
+        p.cut()
+        print(f"[{time_str}] Receipt printed. Overall: {overall}")
+
+    except Exception as e:
+        print(f"ERROR: Printing failed: {e}", file=sys.stderr)
+        print_to_stdout(now, date_str, time_str, overall, attention, sections)
 
 
 def print_to_stdout(now, date_str, time_str, overall, attention, sections):
