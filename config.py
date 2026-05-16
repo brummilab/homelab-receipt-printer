@@ -29,6 +29,7 @@ def _defaults():
             "jellyfin_url":     os.environ.get("JELLYFIN_URL", ""),
             "jellyfin_api_key": os.environ.get("JELLYFIN_API_KEY", ""),
             "immich_url":       os.environ.get("IMMICH_URL", ""),
+            "immich_api_key":   os.environ.get("IMMICH_API_KEY", ""),
             "pangolin_url":     os.environ.get("PANGOLIN_URL", ""),
         },
         "adguard": {

@@ -1,3 +1,4 @@
+import json
 import re
 import subprocess
 import sys
@@ -36,6 +37,17 @@ def api_save():
     config.save(cfg)
     _write_cron(schedule)
     return jsonify({"ok": True})
+
+
+@app.get("/api/status")
+def api_status():
+    r = subprocess.run(
+        [sys.executable, "/app/healthcheck.py", "--json"],
+        capture_output=True, text=True, timeout=60,
+    )
+    if r.returncode != 0 or not r.stdout.strip():
+        return jsonify({"ok": False, "error": r.stderr[:200]}), 500
+    return jsonify({"ok": True, **json.loads(r.stdout)})
 
 
 @app.post("/api/print")

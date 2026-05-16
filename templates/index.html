@@ -215,6 +215,45 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   z-index: 20;
 }
 
+/* ── Status preview ── */
+.status-overall {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+.status-overall.OK   { background: rgba(63,185,80,.15); color: var(--success); }
+.status-overall.WARN { background: rgba(210,153,34,.15); color: var(--warn); }
+.status-overall.FAIL { background: rgba(248,81,73,.15);  color: var(--danger); }
+
+.status-section { margin-bottom: 14px; }
+.status-section:last-child { margin-bottom: 0; }
+.status-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.status-row {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.dot { font-size: 9px; flex-shrink: 0; margin-top: 2px; }
+.dot.OK   { color: var(--success); }
+.dot.WARN { color: var(--warn); }
+.dot.FAIL { color: var(--danger); }
+.status-label  { color: var(--text); }
+.status-detail { color: var(--muted); }
+
 /* ── Log box ── */
 .log-box {
   margin-top: 14px;
@@ -368,6 +407,10 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
           <input type="text" x-model="cfg.services.immich_url" placeholder="http://192.168.1.50:30041">
         </div>
         <div class="field">
+          <label class="label">Immich API-Key</label>
+          <input type="password" x-model="cfg.services.immich_api_key" placeholder="••••••••">
+        </div>
+        <div class="field">
           <label class="label">Pangolin URL</label>
           <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
         </div>
@@ -463,6 +506,33 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </div>
   </div>
 
+  <!-- Status Vorschau -->
+  <div class="card">
+    <div class="card-title">Status Vorschau</div>
+    <button class="btn btn-ghost" @click="checkStatus()" :disabled="checking">
+      <span x-show="!checking">⟳ Status prüfen</span>
+      <span x-show="checking">Prüfe…</span>
+    </button>
+
+    <template x-if="statusData">
+      <div style="margin-top:16px;">
+        <div class="status-overall" :class="statusData.overall" x-text="'Overall: ' + statusData.overall"></div>
+        <template x-for="[key, label] in statusSectionLabels" :key="key">
+          <div class="status-section" x-show="statusData.sections[key]">
+            <div class="status-section-title" x-text="label"></div>
+            <template x-for="row in (statusData.sections[key] || [])" :key="row[1]">
+              <div class="status-row">
+                <span class="dot" :class="row[0]">●</span>
+                <span class="status-label" x-text="row[1]"></span>
+                <span class="status-detail" x-show="row[2]" x-text="'· ' + row[2]"></span>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </template>
+  </div>
+
   <!-- Jetzt drucken -->
   <div class="card">
     <div class="card-title">Jetzt drucken</div>
@@ -499,7 +569,21 @@ function app() {
     printOk: true,
     logoUrl: null,
     logoUploading: false,
+    checking: false,
+    statusData: null,
     toast: { show: false, msg: '', type: 'ok' },
+
+    statusSectionLabels: [
+      ['system',   'System'],
+      ['docker',   'Docker'],
+      ['zfs',      'ZFS'],
+      ['disk',     'Disk'],
+      ['backups',  'Backups'],
+      ['network',  'Netzwerk'],
+      ['services', 'Services'],
+      ['websites', 'Websites'],
+      ['adguard',  'AdGuard Home'],
+    ],
 
     sections: [
       ['system',   'System',    'Uptime, CPU, RAM'],
@@ -556,6 +640,22 @@ function app() {
         this.showToast('Netzwerkfehler', 'err');
       }
       this.saving = false;
+    },
+
+    async checkStatus() {
+      this.checking = true;
+      try {
+        const r = await fetch('/api/status');
+        const d = await r.json();
+        if (d.ok) {
+          this.statusData = d;
+        } else {
+          this.showToast(d.error || 'Fehler', 'err');
+        }
+      } catch {
+        this.showToast('Netzwerkfehler', 'err');
+      }
+      this.checking = false;
     },
 
     async printNow() {

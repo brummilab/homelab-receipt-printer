@@ -26,6 +26,7 @@ PRINTER_DEVICE  = _cfg["printer"]["device"]
 JELLYFIN_URL    = _cfg["services"]["jellyfin_url"]
 JELLYFIN_KEY    = _cfg["services"]["jellyfin_api_key"]
 IMMICH_URL      = _cfg["services"]["immich_url"]
+IMMICH_KEY      = _cfg["services"]["immich_api_key"]
 PANGOLIN_URL    = _cfg["services"]["pangolin_url"]
 BACKUP_PATHS    = _cfg["backups"]["paths"]
 BACKUP_MAX_AGE  = _cfg["backups"]["max_age_hours"]
@@ -268,12 +269,16 @@ def check_services():
 
     # Immich
     try:
+        headers = {"x-api-key": IMMICH_KEY} if IMMICH_KEY else {}
         r = requests.get(
             f"{IMMICH_URL}/api/server-info/ping",
-            timeout=TIMEOUT
+            headers=headers,
+            timeout=TIMEOUT,
         )
         if r.status_code == 200:
             results.append(ok("Immich", "pong"))
+        elif r.status_code == 401:
+            results.append(warn("Immich", "invalid API key"))
         else:
             results.append(warn("Immich", f"HTTP {r.status_code}"))
     except Exception:
@@ -422,9 +427,7 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-if __name__ == "__main__":
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Running healthcheck...")
-
+def _run_checks():
     checks = _cfg.get("checks", {})
     section_fns = {
         "system":   check_system,
@@ -437,10 +440,34 @@ if __name__ == "__main__":
         "websites": check_websites,
         "adguard":  check_adguard,
     }
-    sections = {
+    return {
         key: fn()
         for key, fn in section_fns.items()
         if checks.get(key, True)
     }
 
-    print_report(sections)
+
+if __name__ == "__main__":
+    import argparse
+    import json as _json
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--json", action="store_true", help="Output results as JSON")
+    args = parser.parse_args()
+
+    if not args.json:
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Running healthcheck...")
+
+    sections = _run_checks()
+
+    if args.json:
+        all_results = [item for items in sections.values() for item in items]
+        has_fail = any(r[0] == "FAIL" for r in all_results)
+        has_warn = any(r[0] == "WARN" for r in all_results)
+        overall = "FAIL" if has_fail else ("WARN" if has_warn else "OK")
+        print(_json.dumps({
+            "overall": overall,
+            "sections": {k: [list(r) for r in v] for k, v in sections.items()},
+        }))
+    else:
+        print_report(sections)
