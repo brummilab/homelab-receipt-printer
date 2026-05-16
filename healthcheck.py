@@ -276,7 +276,7 @@ def check_services():
     try:
         headers = {"x-api-key": IMMICH_KEY} if IMMICH_KEY else {}
         r = requests.get(
-            f"{IMMICH_URL}/api/server-info/ping",
+            f"{IMMICH_URL}/api/server/ping",
             headers=headers,
             timeout=TIMEOUT,
         )
