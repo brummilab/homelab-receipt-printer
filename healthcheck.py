@@ -34,6 +34,7 @@ DISK_WARN_PCT   = _cfg["disk"]["warn_percent"]
 ADGUARD_URL     = _cfg["adguard"]["url"].rstrip("/")
 ADGUARD_USER    = _cfg["adguard"]["username"]
 ADGUARD_PASS    = _cfg["adguard"]["password"]
+WEBSITE_URLS    = _cfg["websites"]["urls"]
 
 TIMEOUT = 5  # seconds for HTTP checks
 
@@ -149,6 +150,34 @@ def check_disk():
             results.append(fail(f"Disk/{path[-12:]}", str(e)[:20]))
     if not results:
         results.append(warn("Disk", "No paths configured"))
+    return results
+
+
+def check_websites():
+    results = []
+    for url in WEBSITE_URLS:
+        url = url.strip()
+        if not url:
+            continue
+        try:
+            from urllib.parse import urlparse
+            host = urlparse(url).netloc or url
+            label = host[:18]
+            t0 = time.time()
+            r = requests.get(url, timeout=TIMEOUT, allow_redirects=True)
+            ms = int((time.time() - t0) * 1000)
+            if r.status_code < 400:
+                results.append(ok(label, f"{r.status_code} ({ms}ms)"))
+            elif r.status_code < 500:
+                results.append(warn(label, f"{r.status_code} ({ms}ms)"))
+            else:
+                results.append(fail(label, f"{r.status_code}"))
+        except requests.Timeout:
+            results.append(fail(label, "timeout"))
+        except Exception:
+            results.append(fail(label, "unreachable"))
+    if not results:
+        results.append(warn("Websites", "No URLs configured"))
     return results
 
 
@@ -332,6 +361,7 @@ def print_report(sections: dict):
         "backups":  "Backups",
         "network":  "Network",
         "services": "Services",
+        "websites": "Websites",
         "adguard":  "AdGuard Home",
     }
 
@@ -365,6 +395,7 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
         "backups":  "Backups",
         "network":  "Network",
         "services": "Services",
+        "websites": "Websites",
         "adguard":  "AdGuard Home",
     }
     print("=" * 32)
@@ -403,6 +434,7 @@ if __name__ == "__main__":
         "backups":  check_backups,
         "network":  check_network,
         "services": check_services,
+        "websites": check_websites,
         "adguard":  check_adguard,
     }
     sections = {

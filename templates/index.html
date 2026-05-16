@@ -422,6 +422,23 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </div>
   </div>
 
+  <!-- Websites -->
+  <div class="card">
+    <div class="card-title">Websites</div>
+    <div class="field">
+      <label class="label">URLs</label>
+      <div class="path-list">
+        <template x-for="(_, i) in cfg.websites.urls" :key="i">
+          <div class="path-row">
+            <input type="text" x-model="cfg.websites.urls[i]" placeholder="https://example.com">
+            <button class="btn-icon" @click="cfg.websites.urls.splice(i, 1)" title="Entfernen">✕</button>
+          </div>
+        </template>
+      </div>
+      <button class="btn-add" @click="cfg.websites.urls.push('')">+ URL hinzufügen</button>
+    </div>
+  </div>
+
   <!-- Disk -->
   <div class="card">
     <div class="card-title">Disk</div>
@@ -475,7 +492,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 <script>
 function app() {
   return {
-    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', checks: {}, services: {}, adguard: { url: '', username: '', password: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 } },
+    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', checks: {}, services: {}, adguard: { url: '', username: '', password: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] } },
     saving: false,
     printing: false,
     printLog: '',
@@ -492,6 +509,7 @@ function app() {
       ['backups',  'Backups',   'Alter der Backup-Verzeichnisse'],
       ['network',  'Netzwerk',  'DNS, Reverse Proxy'],
       ['services', 'Services',  'Jellyfin, Immich'],
+      ['websites', 'Websites',  'HTTP-Status + Antwortzeit'],
       ['adguard',  'AdGuard',   'DNS-Statistiken'],
     ],
 

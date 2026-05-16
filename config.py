@@ -15,14 +15,15 @@ def _defaults():
         },
         "schedule": os.environ.get("CRON_SCHEDULE", "0 6 * * *"),
         "checks": {
-            "system":   True,
-            "docker":   True,
-            "zfs":      True,
-            "disk":     True,
-            "backups":  True,
-            "network":  True,
-            "services": True,
-            "adguard":  True,
+            "system":    True,
+            "docker":    True,
+            "zfs":       True,
+            "disk":      True,
+            "backups":   True,
+            "network":   True,
+            "services":  True,
+            "websites":  True,
+            "adguard":   True,
         },
         "services": {
             "jellyfin_url":     os.environ.get("JELLYFIN_URL", ""),
@@ -42,6 +43,9 @@ def _defaults():
         "disk": {
             "paths":        [],
             "warn_percent": 85,
+        },
+        "websites": {
+            "urls": [],
         },
     }
 
