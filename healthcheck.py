@@ -80,23 +80,28 @@ def check_docker():
     results = []
     try:
         client = docker.from_env()
-        containers = sorted(client.containers.list(all=True), key=lambda c: c.name)
-        running_count = sum(1 for c in containers if c.status == "running")
-        results.append(ok("Running", f"{running_count}/{len(containers)}"))
+        all_containers = client.containers.list(all=True)
 
-        for c in containers:
+        managed = sorted(
+            [c for c in all_containers
+             if c.attrs.get("HostConfig", {}).get("RestartPolicy", {}).get("Name", "no")
+             in ("always", "unless-stopped")],
+            key=lambda c: c.name,
+        )
+
+        running_count = sum(1 for c in managed if c.status == "running")
+        results.append(ok("Running", f"{running_count}/{len(managed)}"))
+
+        for c in managed:
             name = c.name[:16]
             health = c.attrs.get("State", {}).get("Health", {}).get("Status", "")
-            restart = c.attrs.get("HostConfig", {}).get("RestartPolicy", {}).get("Name", "no")
             if c.status == "running":
                 if health == "unhealthy":
                     results.append(warn(name, "unhealthy"))
                 else:
                     results.append(ok(name, "running"))
-            elif c.status == "exited" and restart not in ("no", ""):
-                results.append(warn(name, "stopped!"))
             else:
-                results.append(ok(name, c.status))
+                results.append(warn(name, "stopped!"))
     except Exception as e:
         results.append(fail("Docker", str(e)[:30]))
     return results
