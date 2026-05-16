@@ -13,7 +13,8 @@ Alle Einstellungen über eine Web UI konfigurierbar — kein Editieren von Datei
 | **Disk** | Füllstand konfigurierter Mountpoints, WARN ab einstellbarem %, FAIL ab 95 % |
 | **Backups** | Alter der Backup-Verzeichnisse, WARN ab konfigurierbaren Stunden |
 | **Netzwerk** | DNS-Auflösung, Pangolin Reverse Proxy |
-| **Services** | Jellyfin, Immich |
+| **Services** | Jellyfin, Immich (mit API-Key) |
+| **Websites** | HTTP-Status + Antwortzeit beliebiger URLs |
 | **AdGuard Home** | DNS-Anfragen heute, blockierte Anfragen + Blockierrate |
 
 Alle Sektionen können einzeln ein- oder ausgeschaltet werden.
@@ -25,10 +26,11 @@ Erreichbar unter `http://<server-ip>:8080` nach dem Start.
 - Drucker-Backend wählen (USB oder Netzwerk/LAN)
 - Logo hochladen (wird oben auf dem Bon gedruckt)
 - Sektionen ein-/ausschalten
-- Service-URLs und API-Keys eintragen
+- Service-URLs und API-Keys eintragen (Jellyfin, Immich, AdGuard)
+- Websites zur Überwachung hinzufügen
 - Backup-Pfade und Disk-Mountpoints verwalten
-- AdGuard Home anbinden
 - Cron-Zeitplan setzen
+- **Status Vorschau** — alle Checks live ausführen ohne zu drucken
 - „Bon drucken" — sofort manuell auslösen
 
 Die Konfiguration wird in einem Docker-Volume unter `/config/config.json` gespeichert.
@@ -105,6 +107,7 @@ Alle Einstellungen sind über die Web UI zugänglich. Als Startkonfiguration kö
 | `JELLYFIN_URL` | – | Jellyfin-Adresse |
 | `JELLYFIN_API_KEY` | – | Jellyfin API-Key |
 | `IMMICH_URL` | – | Immich-Adresse |
+| `IMMICH_API_KEY` | – | Immich API-Key |
 | `PANGOLIN_URL` | – | Pangolin Reverse Proxy URL |
 | `BACKUP_PATHS` | – | Kommagetrennte Backup-Pfade |
 | `ADGUARD_URL` | – | AdGuard Home URL |
