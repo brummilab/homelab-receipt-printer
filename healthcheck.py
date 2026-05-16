@@ -35,7 +35,8 @@ DISK_WARN_PCT   = _cfg["disk"]["warn_percent"]
 ADGUARD_URL     = _cfg["adguard"]["url"].rstrip("/")
 ADGUARD_USER    = _cfg["adguard"]["username"]
 ADGUARD_PASS    = _cfg["adguard"]["password"]
-WEBSITE_URLS    = _cfg["websites"]["urls"]
+WEBSITE_URLS       = _cfg["websites"]["urls"]
+DOCKER_EXCLUDE     = [p.lower() for p in _cfg["docker"]["exclude"]]
 
 TIMEOUT = 5  # seconds for HTTP checks
 
@@ -85,7 +86,8 @@ def check_docker():
         managed = sorted(
             [c for c in all_containers
              if c.attrs.get("HostConfig", {}).get("RestartPolicy", {}).get("Name", "no")
-             in ("always", "unless-stopped")],
+             in ("always", "unless-stopped")
+             and not any(pat in c.name.lower() for pat in DOCKER_EXCLUDE)],
             key=lambda c: c.name,
         )
 

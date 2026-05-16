@@ -48,6 +48,9 @@ def _defaults():
         "websites": {
             "urls": [],
         },
+        "docker": {
+            "exclude": ["postgres", "redis", "mysql", "mariadb", "mongo"],
+        },
     }
 
 
