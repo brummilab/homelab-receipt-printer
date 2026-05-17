@@ -1,130 +1,130 @@
 # homelab-receipt-printer
 
-Druckt täglich einen Thermobon mit dem Homelab-Status auf einem ESC/POS Thermodrucker.  
-Alle Einstellungen über eine Web UI konfigurierbar — kein Editieren von Dateien nötig.
+Prints a daily thermal receipt with homelab status on an ESC/POS thermal printer.  
+All settings configurable through a web UI — no file editing required.
 
-## Was wird geprüft
+## What is checked
 
-| Sektion | Inhalt |
+| Section | Content |
 |---|---|
-| **System** | Uptime, CPU-Last, RAM-Auslastung |
-| **Docker** | Jeder Container einzeln: Name + Status (running / stopped / unhealthy) |
-| **ZFS** | Pool-Status (ONLINE / degraded) |
-| **Disk** | Füllstand konfigurierter Mountpoints, WARN ab einstellbarem %, FAIL ab 95 % |
-| **Backups** | Alter der Backup-Verzeichnisse, WARN ab konfigurierbaren Stunden |
-| **Netzwerk** | DNS-Auflösung, Pangolin Reverse Proxy |
-| **Services** | Jellyfin, Immich (mit API-Key) |
-| **Websites** | HTTP-Status + Antwortzeit beliebiger URLs |
-| **AdGuard Home** | DNS-Anfragen heute, blockierte Anfragen + Blockierrate |
+| **System** | Uptime, CPU load, RAM usage |
+| **Docker** | Each container individually: name + status (running / stopped / unhealthy) |
+| **ZFS** | Pool status (ONLINE / degraded) |
+| **Disk** | Usage of configured mount points, WARN at configurable %, FAIL at 95% |
+| **Backups** | Age of backup directories, WARN after configurable hours |
+| **Network** | DNS resolution, Pangolin reverse proxy |
+| **Services** | Jellyfin, Immich (with API key) |
+| **Websites** | HTTP status + response time for arbitrary URLs |
+| **AdGuard Home** | DNS queries today, blocked queries + block rate |
 
-Alle Sektionen können einzeln ein- oder ausgeschaltet werden.
+All sections can be individually enabled or disabled.
 
 ## Web UI
 
-Erreichbar unter `http://<server-ip>:8080` nach dem Start.
+Available at `http://<server-ip>:8080` after startup.
 
-- Drucker-Backend wählen (USB oder Netzwerk/LAN)
-- Logo hochladen (wird oben auf dem Bon gedruckt)
-- Sektionen ein-/ausschalten
-- Service-URLs und API-Keys eintragen (Jellyfin, Immich, AdGuard)
-- Websites zur Überwachung hinzufügen
-- Backup-Pfade und Disk-Mountpoints verwalten
-- Cron-Zeitplan setzen
-- **Status Vorschau** — alle Checks live ausführen ohne zu drucken
-- „Bon drucken" — sofort manuell auslösen
+- Choose printer backend (USB or Network/LAN)
+- Upload logo (printed at the top of the receipt)
+- Enable/disable sections
+- Enter service URLs and API keys (Jellyfin, Immich, AdGuard)
+- Add websites to monitor
+- Manage backup paths and disk mount points
+- Set cron schedule
+- **Status Preview** — run all checks live without printing
+- "Print Receipt" — trigger manually at any time
 
-Die Konfiguration wird in einem Docker-Volume unter `/config/config.json` gespeichert.
+Configuration is saved in a Docker volume at `/config/config.json`.
 
 ## Installation
 
-### 1. Repo klonen
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/brummilab/homelab-receipt-printer.git
 cd homelab-receipt-printer
 ```
 
-### 2. Drucker anschließen
+### 2. Connect the printer
 
 **USB:**
 
 ```bash
 ls /dev/usb/lp*
-# Berechtigungen setzen (einmalig):
+# Set permissions (once):
 sudo chmod a+rw /dev/usb/lp0
-# oder dauerhaft per udev (Epson Vendor-ID 04b8, mit lsusb prüfen):
+# Or permanently via udev (check vendor ID with lsusb):
 echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="04b8", MODE="0666"' | sudo tee /etc/udev/rules.d/99-printer.rules
 sudo udevadm control --reload-rules
 ```
 
-**Netzwerk (LAN/Ethernet):**  
-Kein Setup nötig — IP-Adresse und Port `9100` werden in der Web UI eingetragen.
+**Network (LAN/Ethernet):**  
+No setup needed — enter the IP address and port `9100` in the web UI.
 
-### 3. Image bauen
+### 3. Build the image
 
 ```bash
 docker build -t receipt-printer:latest .
 ```
 
-### 4. Container starten
+### 4. Start the container
 
 ```bash
 docker compose up -d
 ```
 
-Der Container druckt nach ~10 Sekunden einmalig zur Kontrolle und läuft danach per Cron (Standard: täglich 06:00).
+The container prints once after ~10 seconds as a test and then runs on a cron schedule (default: daily at 06:00).
 
-### 5. Web UI öffnen
+### 5. Open the web UI
 
 ```
 http://<server-ip>:8080
 ```
 
-Dort alle Einstellungen vornehmen und speichern. Keine weiteren Schritte nötig.
+Configure and save all settings there. No further steps needed.
 
-### Logs prüfen
+### Check logs
 
 ```bash
 docker logs receipt-printer
 docker logs -f receipt-printer
 ```
 
-### Manuell auslösen
+### Trigger manually
 
 ```bash
 docker exec receipt-printer python /app/healthcheck.py
-# oder über die Web UI: „Bon drucken"
+# or via the web UI: "Print Receipt"
 ```
 
-## Konfiguration
+## Configuration
 
-Alle Einstellungen sind über die Web UI zugänglich. Als Startkonfiguration können Umgebungsvariablen in der `docker-compose.yml` gesetzt werden — diese werden beim ersten Start übernommen, sofern noch keine gespeicherte Konfiguration existiert.
+All settings are accessible through the web UI. Environment variables in `docker-compose.yml` can be used as initial configuration — they are applied on first start if no saved configuration exists yet.
 
-| Variable | Standard | Beschreibung |
+| Variable | Default | Description |
 |---|---|---|
-| `PRINTER_DEVICE` | `/dev/usb/lp0` | USB-Gerätepfad |
-| `CRON_SCHEDULE` | `0 6 * * *` | Cron-Zeitplan |
-| `JELLYFIN_URL` | – | Jellyfin-Adresse |
-| `JELLYFIN_API_KEY` | – | Jellyfin API-Key |
-| `IMMICH_URL` | – | Immich-Adresse |
-| `IMMICH_API_KEY` | – | Immich API-Key |
-| `PANGOLIN_URL` | – | Pangolin Reverse Proxy URL |
-| `BACKUP_PATHS` | – | Kommagetrennte Backup-Pfade |
+| `PRINTER_DEVICE` | `/dev/usb/lp0` | USB device path |
+| `CRON_SCHEDULE` | `0 6 * * *` | Cron schedule |
+| `JELLYFIN_URL` | – | Jellyfin address |
+| `JELLYFIN_API_KEY` | – | Jellyfin API key |
+| `IMMICH_URL` | – | Immich address |
+| `IMMICH_API_KEY` | – | Immich API key |
+| `PANGOLIN_URL` | – | Pangolin reverse proxy URL |
+| `BACKUP_PATHS` | – | Comma-separated backup paths |
 | `ADGUARD_URL` | – | AdGuard Home URL |
-| `ADGUARD_USER` | – | AdGuard Benutzername |
-| `ADGUARD_PASS` | – | AdGuard Passwort |
-| `TZ` | `Europe/Vienna` | Zeitzone |
+| `ADGUARD_USER` | – | AdGuard username |
+| `ADGUARD_PASS` | – | AdGuard password |
+| `TZ` | `Europe/Vienna` | Timezone |
 
-## Projektstruktur
+## Project structure
 
 ```
 .
 ├── Dockerfile
 ├── docker-compose.yml
-├── entrypoint.sh      # Cron-Setup, startet Web UI und ersten Bon
-├── config.py          # Config laden/speichern (/config/config.json)
-├── webui.py           # Flask Web UI (Port 8080)
-├── healthcheck.py     # Hauptskript
+├── entrypoint.sh      # Cron setup, starts web UI and initial receipt
+├── config.py          # Config load/save (/config/config.json)
+├── webui.py           # Flask web UI (port 8080)
+├── healthcheck.py     # Main script
 └── templates/
-    └── index.html     # Web UI Frontend
+    └── index.html     # Web UI frontend
 ```

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -301,28 +301,28 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
 <div class="main">
 
-  <!-- Drucker & Zeitplan -->
+  <!-- Printer & Schedule -->
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">Drucker</div>
+      <div class="card-title">Printer</div>
       <div class="field">
-        <label class="label">Verbindung</label>
+        <label class="label">Connection</label>
         <div class="inline" style="gap:20px;">
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;">
             <input type="radio" x-model="cfg.printer.backend" value="usb"> USB
           </label>
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;">
-            <input type="radio" x-model="cfg.printer.backend" value="network"> Netzwerk (LAN)
+            <input type="radio" x-model="cfg.printer.backend" value="network"> Network (LAN)
           </label>
         </div>
       </div>
       <div class="field" x-show="cfg.printer.backend !== 'network'">
-        <label class="label">Gerätepfad</label>
+        <label class="label">Device Path</label>
         <input type="text" x-model="cfg.printer.device" placeholder="/dev/usb/lp0">
       </div>
       <div x-show="cfg.printer.backend === 'network'">
         <div class="field">
-          <label class="label">IP-Adresse</label>
+          <label class="label">IP Address</label>
           <input type="text" x-model="cfg.printer.host" placeholder="192.168.1.100">
         </div>
         <div class="field" style="margin-bottom:0;">
@@ -333,9 +333,9 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </div>
 
     <div class="card">
-      <div class="card-title">Zeitplan</div>
+      <div class="card-title">Schedule</div>
       <div class="field">
-        <label class="label">Cron-Ausdruck</label>
+        <label class="label">Cron Expression</label>
         <input type="text" x-model="cfg.schedule" placeholder="0 6 * * *">
         <div class="hint" x-text="cronHint()"></div>
       </div>
@@ -351,19 +351,19 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
           <img :src="logoUrl" style="max-width:180px;max-height:100px;display:block;image-rendering:pixelated;">
         </div>
         <div x-show="!logoUrl" style="background:var(--bg);border:1px dashed var(--border);border-radius:6px;padding:20px 32px;color:var(--muted);font-size:13px;text-align:center;margin-bottom:10px;">
-          Kein Logo
+          No Logo
         </div>
         <label style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;" class="btn btn-ghost">
-          <span x-show="!logoUploading">Bild hochladen</span>
-          <span x-show="logoUploading">Lädt hoch…</span>
+          <span x-show="!logoUploading">Upload Image</span>
+          <span x-show="logoUploading">Uploading…</span>
           <input type="file" accept="image/*" style="display:none" :disabled="logoUploading" @change="uploadLogo($event)">
         </label>
       </div>
       <div style="flex:1;min-width:160px;color:var(--muted);font-size:12px;line-height:1.7;padding-top:4px;">
-        Wird oben auf dem Bon gedruckt.<br>
-        Empfohlen: quadratisch, hoher Kontrast.<br>
-        Wird auf max. 400 px Breite skaliert.<br>
-        Gespeichert unter <code style="font-size:11px;">/config/logo.png</code>
+        Printed at the top of the receipt.<br>
+        Recommended: square, high contrast.<br>
+        Scaled to max. 400 px width.<br>
+        Saved at <code style="font-size:11px;">/config/logo.png</code>
       </div>
     </div>
   </div>
@@ -372,23 +372,23 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   <div class="card">
     <div class="card-title">Docker</div>
     <div class="field">
-      <label class="label">Container ausblenden (Substring)</label>
+      <label class="label">Hide Containers (Substring)</label>
       <div class="path-list">
         <template x-for="(_, i) in cfg.docker.exclude" :key="i">
           <div class="path-row">
             <input type="text" x-model="cfg.docker.exclude[i]" placeholder="postgres">
-            <button class="btn-icon" @click="cfg.docker.exclude.splice(i, 1)" title="Entfernen">✕</button>
+            <button class="btn-icon" @click="cfg.docker.exclude.splice(i, 1)" title="Remove">✕</button>
           </div>
         </template>
       </div>
-      <button class="btn-add" @click="cfg.docker.exclude.push('')">+ Muster hinzufügen</button>
-      <div class="hint" style="margin-top:8px;">Container deren Name diesen Text enthält werden ignoriert.</div>
+      <button class="btn-add" @click="cfg.docker.exclude.push('')">+ Add Pattern</button>
+      <div class="hint" style="margin-top:8px;">Containers whose name contains this text will be ignored.</div>
     </div>
   </div>
 
-  <!-- Sektionen -->
+  <!-- Sections -->
   <div class="card">
-    <div class="card-title">Sektionen</div>
+    <div class="card-title">Sections</div>
     <template x-for="[key, label, sub] in sections" :key="key">
       <div class="toggle-row">
         <div>
@@ -415,7 +415,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
           <input type="text" x-model="cfg.services.jellyfin_url" placeholder="http://192.168.1.50:8096">
         </div>
         <div class="field">
-          <label class="label">Jellyfin API-Key</label>
+          <label class="label">Jellyfin API Key</label>
           <input type="password" x-model="cfg.services.jellyfin_api_key" placeholder="••••••••">
         </div>
       </div>
@@ -425,7 +425,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
           <input type="text" x-model="cfg.services.immich_url" placeholder="http://192.168.1.50:30041">
         </div>
         <div class="field">
-          <label class="label">Immich API-Key</label>
+          <label class="label">Immich API Key</label>
           <input type="password" x-model="cfg.services.immich_api_key" placeholder="••••••••">
         </div>
         <div class="field">
@@ -448,7 +448,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
       </div>
       <div>
         <div class="field">
-          <label class="label">API-Key</label>
+          <label class="label">API Key</label>
           <input type="password" x-model="cfg.truenas.api_key" placeholder="••••••••">
         </div>
       </div>
@@ -467,11 +467,11 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
       </div>
       <div>
         <div class="field">
-          <label class="label">Benutzername</label>
+          <label class="label">Username</label>
           <input type="text" x-model="cfg.adguard.username" placeholder="admin">
         </div>
         <div class="field">
-          <label class="label">Passwort</label>
+          <label class="label">Password</label>
           <input type="password" x-model="cfg.adguard.password" placeholder="••••••••">
         </div>
       </div>
@@ -482,22 +482,22 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   <div class="card">
     <div class="card-title">Backups</div>
     <div class="field">
-      <label class="label">Pfade</label>
+      <label class="label">Paths</label>
       <div class="path-list">
         <template x-for="(_, i) in cfg.backups.paths" :key="i">
           <div class="path-row">
             <input type="text" x-model="cfg.backups.paths[i]" placeholder="/backups/immich">
-            <button class="btn-icon" @click="cfg.backups.paths.splice(i, 1)" title="Entfernen">✕</button>
+            <button class="btn-icon" @click="cfg.backups.paths.splice(i, 1)" title="Remove">✕</button>
           </div>
         </template>
       </div>
-      <button class="btn-add" @click="cfg.backups.paths.push('')">+ Pfad hinzufügen</button>
+      <button class="btn-add" @click="cfg.backups.paths.push('')">+ Add Path</button>
     </div>
     <div class="field">
-      <label class="label">Max. Alter (Stunden)</label>
+      <label class="label">Max. Age (Hours)</label>
       <div class="inline">
         <input type="number" x-model.number="cfg.backups.max_age_hours" min="1" max="720">
-        <span class="hint" x-text="`= ${(cfg.backups.max_age_hours / 24).toFixed(1)} Tage`"></span>
+        <span class="hint" x-text="`= ${(cfg.backups.max_age_hours / 24).toFixed(1)} days`"></span>
       </div>
     </div>
   </div>
@@ -511,11 +511,11 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
         <template x-for="(_, i) in cfg.websites.urls" :key="i">
           <div class="path-row">
             <input type="text" x-model="cfg.websites.urls[i]" placeholder="https://example.com">
-            <button class="btn-icon" @click="cfg.websites.urls.splice(i, 1)" title="Entfernen">✕</button>
+            <button class="btn-icon" @click="cfg.websites.urls.splice(i, 1)" title="Remove">✕</button>
           </div>
         </template>
       </div>
-      <button class="btn-add" @click="cfg.websites.urls.push('')">+ URL hinzufügen</button>
+      <button class="btn-add" @click="cfg.websites.urls.push('')">+ Add URL</button>
     </div>
   </div>
 
@@ -523,32 +523,32 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   <div class="card">
     <div class="card-title">Disk</div>
     <div class="field">
-      <label class="label">Mountpoints</label>
+      <label class="label">Mount Points</label>
       <div class="path-list">
         <template x-for="(_, i) in cfg.disk.paths" :key="i">
           <div class="path-row">
             <input type="text" x-model="cfg.disk.paths[i]" placeholder="/mnt/tank">
-            <button class="btn-icon" @click="cfg.disk.paths.splice(i, 1)" title="Entfernen">✕</button>
+            <button class="btn-icon" @click="cfg.disk.paths.splice(i, 1)" title="Remove">✕</button>
           </div>
         </template>
       </div>
-      <button class="btn-add" @click="cfg.disk.paths.push('')">+ Pfad hinzufügen</button>
+      <button class="btn-add" @click="cfg.disk.paths.push('')">+ Add Path</button>
     </div>
     <div class="field">
-      <label class="label">Warnschwelle</label>
+      <label class="label">Warn Threshold</label>
       <div class="inline">
         <input type="number" x-model.number="cfg.disk.warn_percent" min="1" max="99">
-        <span class="hint">% belegt (FAIL ab 95 %)</span>
+        <span class="hint">% used (FAIL at 95%)</span>
       </div>
     </div>
   </div>
 
-  <!-- Status Vorschau -->
+  <!-- Status Preview -->
   <div class="card">
-    <div class="card-title">Status Vorschau</div>
+    <div class="card-title">Status Preview</div>
     <button class="btn btn-ghost" @click="checkStatus()" :disabled="checking">
-      <span x-show="!checking">⟳ Status prüfen</span>
-      <span x-show="checking">Prüfe…</span>
+      <span x-show="!checking">⟳ Check Status</span>
+      <span x-show="checking">Checking…</span>
     </button>
 
     <template x-if="statusData">
@@ -570,12 +570,12 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </template>
   </div>
 
-  <!-- Jetzt drucken -->
+  <!-- Print Now -->
   <div class="card">
-    <div class="card-title">Jetzt drucken</div>
+    <div class="card-title">Print Now</div>
     <button class="btn btn-ghost" @click="printNow()" :disabled="printing">
-      <span x-show="!printing">🖨 Bon drucken</span>
-      <span x-show="printing">Drucke…</span>
+      <span x-show="!printing">🖨 Print Receipt</span>
+      <span x-show="printing">Printing…</span>
     </button>
     <div x-show="printLog" class="log-box" :class="{'err': !printOk}" x-text="printLog"></div>
   </div>
@@ -584,10 +584,10 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
 <!-- Action bar -->
 <div class="action-bar">
-  <button class="btn btn-ghost" @click="init()">Zurücksetzen</button>
+  <button class="btn btn-ghost" @click="init()">Reset</button>
   <button class="btn btn-primary" @click="save()" :disabled="saving">
-    <span x-show="!saving">Speichern</span>
-    <span x-show="saving">Speichert…</span>
+    <span x-show="!saving">Save</span>
+    <span x-show="saving">Saving…</span>
   </button>
 </div>
 
@@ -616,7 +616,7 @@ function app() {
       ['zfs',      'ZFS'],
       ['disk',     'Disk'],
       ['backups',  'Backups'],
-      ['network',  'Netzwerk'],
+      ['network',  'Network'],
       ['services', 'Services'],
       ['websites', 'Websites'],
       ['adguard',  'AdGuard Home'],
@@ -624,14 +624,14 @@ function app() {
 
     sections: [
       ['system',   'System',    'Uptime, CPU, RAM'],
-      ['docker',   'Docker',    'Container-Status'],
-      ['zfs',      'ZFS',       'Pool-Gesundheit'],
-      ['disk',     'Disk',      'Festplatten-Auslastung'],
-      ['backups',  'Backups',   'Alter der Backup-Verzeichnisse'],
-      ['network',  'Netzwerk',  'DNS, Reverse Proxy'],
+      ['docker',   'Docker',    'Container status'],
+      ['zfs',      'ZFS',       'Pool health'],
+      ['disk',     'Disk',      'Disk usage'],
+      ['backups',  'Backups',   'Age of backup directories'],
+      ['network',  'Network',   'DNS, Reverse Proxy'],
       ['services', 'Services',  'Jellyfin, Immich'],
-      ['websites', 'Websites',  'HTTP-Status + Antwortzeit'],
-      ['adguard',  'AdGuard',   'DNS-Statistiken'],
+      ['websites', 'Websites',  'HTTP status + response time'],
+      ['adguard',  'AdGuard',   'DNS statistics'],
     ],
 
     async init() {
@@ -652,12 +652,12 @@ function app() {
         const d = await r.json();
         if (d.ok) {
           this.logoUrl = `/api/logo?t=${Date.now()}`;
-          this.showToast('Logo gespeichert ✓', 'ok');
+          this.showToast('Logo saved ✓', 'ok');
         } else {
-          this.showToast(d.error || 'Fehler', 'err');
+          this.showToast(d.error || 'Error', 'err');
         }
       } catch {
-        this.showToast('Netzwerkfehler', 'err');
+        this.showToast('Network error', 'err');
       }
       this.logoUploading = false;
       event.target.value = '';
@@ -672,9 +672,9 @@ function app() {
           body: JSON.stringify(this.cfg),
         });
         const d = await r.json();
-        d.ok ? this.showToast('Gespeichert ✓', 'ok') : this.showToast(d.error || 'Fehler', 'err');
+        d.ok ? this.showToast('Saved ✓', 'ok') : this.showToast(d.error || 'Error', 'err');
       } catch {
-        this.showToast('Netzwerkfehler', 'err');
+        this.showToast('Network error', 'err');
       }
       this.saving = false;
     },
@@ -687,10 +687,10 @@ function app() {
         if (d.ok) {
           this.statusData = d;
         } else {
-          this.showToast(d.error || 'Fehler', 'err');
+          this.showToast(d.error || 'Error', 'err');
         }
       } catch {
-        this.showToast('Netzwerkfehler', 'err');
+        this.showToast('Network error', 'err');
       }
       this.checking = false;
     },
@@ -702,26 +702,26 @@ function app() {
         const r = await fetch('/api/print', { method: 'POST' });
         const d = await r.json();
         this.printOk = d.ok;
-        this.printLog = d.log || (d.ok ? 'Bon gedruckt.' : 'Fehler beim Drucken.');
+        this.printLog = d.log || (d.ok ? 'Receipt printed.' : 'Print error.');
       } catch {
         this.printOk = false;
-        this.printLog = 'Netzwerkfehler';
+        this.printLog = 'Network error';
       }
       this.printing = false;
     },
 
     cronHint() {
       const parts = (this.cfg.schedule || '').trim().split(/\s+/);
-      if (parts.length !== 5) return 'Ungültiger Ausdruck';
+      if (parts.length !== 5) return 'Invalid expression';
       const [min, hour, dom, month, dow] = parts;
       const isNum = s => /^\d+$/.test(s);
       if (dom === '*' && month === '*' && dow === '*' && isNum(hour) && isNum(min))
-        return `Täglich um ${hour.padStart(2,'0')}:${min.padStart(2,'0')} Uhr`;
+        return `Daily at ${hour.padStart(2,'0')}:${min.padStart(2,'0')}`;
       if (dom === '*' && month === '*' && isNum(dow) && isNum(hour) && isNum(min)) {
-        const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-        return `Jeden ${days[+dow] ?? dow} um ${hour.padStart(2,'0')}:${min.padStart(2,'0')} Uhr`;
+        const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        return `Every ${days[+dow] ?? dow} at ${hour.padStart(2,'0')}:${min.padStart(2,'0')}`;
       }
-      return 'Benutzerdefinierter Zeitplan';
+      return 'Custom schedule';
     },
 
     showToast(msg, type) {

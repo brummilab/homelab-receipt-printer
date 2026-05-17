@@ -33,7 +33,7 @@ def api_save():
     cfg = request.get_json(force=True)
     schedule = cfg.get("schedule", "0 6 * * *").strip()
     if not _CRON_RE.match(schedule):
-        return jsonify({"ok": False, "error": "Ungültiger Cron-Ausdruck"}), 400
+        return jsonify({"ok": False, "error": "Invalid cron expression"}), 400
     config.save(cfg)
     _write_cron(schedule)
     return jsonify({"ok": True})
@@ -70,7 +70,7 @@ def api_logo_get():
 def api_logo_upload():
     f = request.files.get("logo")
     if not f:
-        return jsonify({"ok": False, "error": "Keine Datei"}), 400
+        return jsonify({"ok": False, "error": "No file provided"}), 400
     try:
         img = Image.open(f).convert("L")  # grayscale — optimal for thermal
         w, h = img.size
