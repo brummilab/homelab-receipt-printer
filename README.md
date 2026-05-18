@@ -37,14 +37,32 @@ Configuration is saved in a Docker volume at `/config/config.json`.
 
 ## Installation
 
-### 1. Clone the repo
+### Option A — Dockge / TrueNAS (recommended)
+
+The image is published automatically to the GitHub Container Registry on every push to `main`.
+
+1. Open Dockge and create a new stack
+2. Paste the contents of [`docker-compose.yml`](docker-compose.yml)
+3. Adjust the environment variables (IP addresses, API keys, paths)
+4. Deploy — Dockge pulls `ghcr.io/brummilab/homelab-receipt-printer:latest` automatically
+
+No cloning or building required.
+
+### Option B — Manual (self-hosted build)
 
 ```bash
 git clone https://github.com/brummilab/homelab-receipt-printer.git
 cd homelab-receipt-printer
+docker build -t ghcr.io/brummilab/homelab-receipt-printer:latest .
+docker compose up -d
 ```
 
-### 2. Connect the printer
+---
+
+### Printer connection
+
+**Network (LAN/Ethernet) — recommended:**  
+No host setup needed. Enter the printer IP and port `9100` in the web UI after startup.
 
 **USB:**
 
@@ -57,24 +75,13 @@ echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="04b8", MODE="0666"' | sudo tee /etc/ud
 sudo udevadm control --reload-rules
 ```
 
-**Network (LAN/Ethernet):**  
-No setup needed — enter the IP address and port `9100` in the web UI.
+Uncomment the `devices:` block in `docker-compose.yml` when using USB.
 
-### 3. Build the image
-
-```bash
-docker build -t receipt-printer:latest .
-```
-
-### 4. Start the container
-
-```bash
-docker compose up -d
-```
+---
 
 The container prints once after ~10 seconds as a test and then runs on a cron schedule (default: daily at 06:00).
 
-### 5. Open the web UI
+### Open the web UI
 
 ```
 http://<server-ip>:8080
