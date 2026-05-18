@@ -14,6 +14,7 @@ def _defaults():
             "port":    9100,
         },
         "schedule": os.environ.get("CRON_SCHEDULE", "0 6 * * *"),
+        "schedule_enabled": False,
         "checks": {
             "system":    True,
             "docker":    True,
@@ -21,16 +22,11 @@ def _defaults():
             "disk":      True,
             "backups":   True,
             "network":   True,
-            "services":  True,
             "websites":  True,
             "adguard":   True,
         },
         "services": {
-            "jellyfin_url":     os.environ.get("JELLYFIN_URL", ""),
-            "jellyfin_api_key": os.environ.get("JELLYFIN_API_KEY", ""),
-            "immich_url":       os.environ.get("IMMICH_URL", ""),
-            "immich_api_key":   os.environ.get("IMMICH_API_KEY", ""),
-            "pangolin_url":     os.environ.get("PANGOLIN_URL", ""),
+            "pangolin_url": os.environ.get("PANGOLIN_URL", ""),
         },
         "adguard": {
             "url":      os.environ.get("ADGUARD_URL", ""),

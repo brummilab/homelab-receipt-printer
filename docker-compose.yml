@@ -9,11 +9,6 @@ services:
       - TZ=Europe/Vienna
       - PRINTER_DEVICE=/dev/usb/lp0
       - CRON_SCHEDULE=0 6 * * *
-      # Service endpoints
-      - JELLYFIN_URL=http://192.168.1.50:8096
-      - JELLYFIN_API_KEY=
-      - IMMICH_URL=http://192.168.1.50:30041
-      - IMMICH_API_KEY=
       - PANGOLIN_URL=https://brummilab.org
       # Backup paths to check (last-modified timestamp)
       - BACKUP_PATHS=/backups/immich,/backups/musik

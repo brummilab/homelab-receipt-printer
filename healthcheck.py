@@ -22,10 +22,6 @@ import config as _config
 _cfg = _config.load()
 
 PRINTER_DEVICE  = _cfg["printer"]["device"]
-JELLYFIN_URL    = _cfg["services"]["jellyfin_url"]
-JELLYFIN_KEY    = _cfg["services"]["jellyfin_api_key"]
-IMMICH_URL      = _cfg["services"]["immich_url"]
-IMMICH_KEY      = _cfg["services"]["immich_api_key"]
 PANGOLIN_URL    = _cfg["services"]["pangolin_url"]
 BACKUP_PATHS    = _cfg["backups"]["paths"]
 BACKUP_MAX_AGE  = _cfg["backups"]["max_age_hours"]
@@ -259,41 +255,6 @@ def check_network():
     return results
 
 
-def check_services():
-    results = []
-
-    # Jellyfin
-    try:
-        r = requests.get(
-            f"{JELLYFIN_URL}/health",
-            timeout=TIMEOUT
-        )
-        if r.status_code == 200:
-            results.append(ok("Jellyfin", "healthy"))
-        else:
-            results.append(warn("Jellyfin", f"HTTP {r.status_code}"))
-    except Exception:
-        results.append(fail("Jellyfin", "unreachable"))
-
-    # Immich
-    try:
-        headers = {"x-api-key": IMMICH_KEY} if IMMICH_KEY else {}
-        r = requests.get(
-            f"{IMMICH_URL}/api/server/ping",
-            headers=headers,
-            timeout=TIMEOUT,
-        )
-        if r.status_code == 200:
-            results.append(ok("Immich", "pong"))
-        elif r.status_code == 401:
-            results.append(warn("Immich", "invalid API key"))
-        else:
-            results.append(warn("Immich", f"HTTP {r.status_code}"))
-    except Exception:
-        results.append(fail("Immich", "unreachable"))
-
-    return results
-
 
 # ── Print ─────────────────────────────────────────────────────────────────────
 def print_report(sections: dict):
@@ -376,7 +337,6 @@ def print_report(sections: dict):
             "disk":     "Disk",
             "backups":  "Backups",
             "network":  "Network",
-            "services": "Services",
             "websites": "Websites",
             "adguard":  "AdGuard Home",
         }
@@ -414,7 +374,6 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
         "disk":     "Disk",
         "backups":  "Backups",
         "network":  "Network",
-        "services": "Services",
         "websites": "Websites",
         "adguard":  "AdGuard Home",
     }
@@ -451,7 +410,6 @@ def _run_checks():
         "disk":     check_disk,
         "backups":  check_backups,
         "network":  check_network,
-        "services": check_services,
         "websites": check_websites,
         "adguard":  check_adguard,
     }

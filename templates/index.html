@@ -334,7 +334,17 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
     <div class="card">
       <div class="card-title">Schedule</div>
-      <div class="field">
+      <div class="toggle-row" style="margin-bottom:14px;">
+        <div>
+          <div class="toggle-label">Automatic schedule</div>
+          <div class="toggle-sub">Print receipt via cron</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" x-model="cfg.schedule_enabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="field" x-show="cfg.schedule_enabled">
         <label class="label">Cron Expression</label>
         <input type="text" x-model="cfg.schedule" placeholder="0 6 * * *">
         <div class="hint" x-text="cronHint()"></div>
@@ -405,34 +415,13 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </template>
   </div>
 
-  <!-- Services -->
+  <!-- Network -->
   <div class="card">
-    <div class="card-title">Services</div>
-    <div class="grid-2">
-      <div>
-        <div class="field">
-          <label class="label">Jellyfin URL</label>
-          <input type="text" x-model="cfg.services.jellyfin_url" placeholder="http://192.168.1.50:8096">
-        </div>
-        <div class="field">
-          <label class="label">Jellyfin API Key</label>
-          <input type="password" x-model="cfg.services.jellyfin_api_key" placeholder="••••••••">
-        </div>
-      </div>
-      <div>
-        <div class="field">
-          <label class="label">Immich URL</label>
-          <input type="text" x-model="cfg.services.immich_url" placeholder="http://192.168.1.50:30041">
-        </div>
-        <div class="field">
-          <label class="label">Immich API Key</label>
-          <input type="password" x-model="cfg.services.immich_api_key" placeholder="••••••••">
-        </div>
-        <div class="field">
-          <label class="label">Pangolin URL</label>
-          <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
-        </div>
-      </div>
+    <div class="card-title">Network</div>
+    <div class="field">
+      <label class="label">Pangolin URL</label>
+      <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
+      <div class="hint">Reverse proxy reachability check</div>
     </div>
   </div>
 
@@ -599,7 +588,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 <script>
 function app() {
   return {
-    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', checks: {}, services: {}, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
+    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', schedule_enabled: false, checks: {}, services: { pangolin_url: '' }, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
     saving: false,
     printing: false,
     printLog: '',
@@ -617,7 +606,6 @@ function app() {
       ['disk',     'Disk'],
       ['backups',  'Backups'],
       ['network',  'Network'],
-      ['services', 'Services'],
       ['websites', 'Websites'],
       ['adguard',  'AdGuard Home'],
     ],
@@ -629,7 +617,6 @@ function app() {
       ['disk',     'Disk',      'Disk usage'],
       ['backups',  'Backups',   'Age of backup directories'],
       ['network',  'Network',   'DNS, Reverse Proxy'],
-      ['services', 'Services',  'Jellyfin, Immich'],
       ['websites', 'Websites',  'HTTP status + response time'],
       ['adguard',  'AdGuard',   'DNS statistics'],
     ],

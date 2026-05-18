@@ -35,7 +35,7 @@ def api_save():
     if not _CRON_RE.match(schedule):
         return jsonify({"ok": False, "error": "Invalid cron expression"}), 400
     config.save(cfg)
-    _write_cron(schedule)
+    _write_cron(schedule, enabled=cfg.get("schedule_enabled", False))
     return jsonify({"ok": True})
 
 
@@ -83,12 +83,13 @@ def api_logo_upload():
         return jsonify({"ok": False, "error": str(e)}), 400
 
 
-def _write_cron(schedule: str):
+def _write_cron(schedule: str, enabled: bool = False):
     import os as _os
     path = "/var/spool/cron/crontabs/root"
     _os.makedirs("/var/spool/cron/crontabs", exist_ok=True)
     with open(path, "w") as f:
-        f.write(f"{schedule} python /app/healthcheck.py >> /var/log/receipt.log 2>&1\n")
+        if enabled:
+            f.write(f"{schedule} python /app/healthcheck.py >> /var/log/receipt.log 2>&1\n")
     _os.chmod(path, 0o600)
 
 
