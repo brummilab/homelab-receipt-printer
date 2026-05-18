@@ -18,8 +18,12 @@ echo "Receipt printer scheduled: $SCHEDULE"
 echo "Starting web UI on :8080..."
 python /app/webui.py &
 
-echo "Running initial check in 10 seconds..."
-sleep 10
-python /app/healthcheck.py || true
+INIT_FLAG=/config/.initial_check_done
+if [ ! -f "$INIT_FLAG" ]; then
+    echo "Running initial check in 10 seconds..."
+    sleep 10
+    python /app/healthcheck.py || true
+    touch "$INIT_FLAG"
+fi
 
 exec cron -f
