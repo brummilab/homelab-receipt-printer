@@ -573,6 +573,13 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
 <!-- Action bar -->
 <div class="action-bar">
+  <label class="btn btn-ghost" style="cursor:pointer;" title="Import config from JSON file">
+    <span x-show="!importing">↑ Import</span>
+    <span x-show="importing">Importing…</span>
+    <input type="file" accept=".json,application/json" style="display:none" :disabled="importing" @change="importConfig($event)">
+  </label>
+  <button class="btn btn-ghost" @click="exportConfig()" title="Download config as JSON">↓ Export</button>
+  <div style="flex:1;"></div>
   <button class="btn btn-ghost" @click="init()">Reset</button>
   <button class="btn btn-primary" @click="save()" :disabled="saving">
     <span x-show="!saving">Save</span>
@@ -597,6 +604,7 @@ function app() {
     logoUploading: false,
     checking: false,
     statusData: null,
+    importing: false,
     toast: { show: false, msg: '', type: 'ok' },
 
     statusSectionLabels: [
@@ -695,6 +703,42 @@ function app() {
         this.printLog = 'Network error';
       }
       this.printing = false;
+    },
+
+    exportConfig() {
+      const blob = new Blob([JSON.stringify(this.cfg, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'receipt-printer-config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    async importConfig(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      this.importing = true;
+      try {
+        const text = await file.text();
+        JSON.parse(text); // validate JSON before sending
+        const r = await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: text,
+        });
+        const d = await r.json();
+        if (d.ok) {
+          await this.init();
+          this.showToast('Config imported ✓', 'ok');
+        } else {
+          this.showToast(d.error || 'Error', 'err');
+        }
+      } catch {
+        this.showToast('Invalid JSON file', 'err');
+      }
+      this.importing = false;
+      event.target.value = '';
     },
 
     cronHint() {
