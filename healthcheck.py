@@ -333,7 +333,7 @@ def print_report(sections: dict):
             try:
                 p.set(align="center")
                 p.image(str(logo))
-                p.text("\n")
+                p.text("\n\n")
             except Exception as e:
                 print(f"Warning: logo print failed: {e}", file=sys.stderr)
 
