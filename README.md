@@ -22,7 +22,14 @@ All settings configurable through a dark web UI — no file editing required.
 | **Websites** | HTTP status + response time for any URL |
 | **AdGuard Home** | DNS queries today, blocked count + block rate |
 
-All sections can be individually enabled or disabled.
+All sections can be individually enabled or disabled. Values are right-aligned for easy scanning:
+
+```
+  Uptime             3d 12h
+  CPU                    2%
+  RAM        4.1/16.0GB 26%
+!! jellyfin       unreachable
+```
 
 ## Web UI
 
@@ -33,6 +40,7 @@ Available at `http://<server-ip>:8085` after startup.
 - Enable/disable individual sections
 - Configure TrueNAS API, AdGuard Home, Pangolin, websites, backup paths, disk mounts
 - Schedule toggle with cron expression (automatic daily print)
+- **Only print on issues** — skip receipt when all checks pass, print only on WARN/FAIL
 - **Status Preview** — run all checks live in the browser without printing
 - **Print Now** — trigger a receipt manually at any time
 - **Export / Import** config as JSON
