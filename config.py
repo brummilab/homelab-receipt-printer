@@ -15,6 +15,7 @@ def _defaults():
         },
         "schedule": os.environ.get("CRON_SCHEDULE", "0 6 * * *"),
         "schedule_enabled": False,
+        "print_only_if_issues": False,
         "checks": {
             "system":    True,
             "docker":    True,

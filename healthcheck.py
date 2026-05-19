@@ -346,11 +346,11 @@ def print_report(sections: dict):
             p.text(section_labels.get(key, key) + "\n")
             p.set(bold=False)
             for status, label, detail in items:
-                marker = "OK" if status == "OK" else ("!!" if status == "FAIL" else " !")
-                line = f"[{marker}] {label}"
-                if detail:
-                    line += f": {detail}"
-                p.text(line[:32] + "\n")
+                marker = "  " if status == "OK" else ("!!" if status == "FAIL" else "! ")
+                label_s = label[:13]
+                detail_s = (detail or "")[:16]
+                line = f"{marker} {label_s:<13}{detail_s:>16}"
+                p.text(line + "\n")
 
         # Footer
         p.text("-" * 32 + "\n")
@@ -395,8 +395,10 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
     for key, items in sections.items():
         print(section_labels.get(key, key))
         for status, label, detail in items:
-            marker = "OK" if status == "OK" else ("!!" if status == "FAIL" else " !")
-            print(f"[{marker}] {label}: {detail}")
+            marker = "  " if status == "OK" else ("!!" if status == "FAIL" else "! ")
+            label_s = label[:13]
+            detail_s = (detail or "")[:16]
+            print(f"{marker} {label_s:<13}{detail_s:>16}")
     print("=" * 32)
 
 
@@ -443,4 +445,9 @@ if __name__ == "__main__":
             "sections": {k: [list(r) for r in v] for k, v in sections.items()},
         }))
     else:
-        print_report(sections)
+        all_results = [item for items in sections.values() for item in items]
+        has_issue = any(r[0] in ("FAIL", "WARN") for r in all_results)
+        if _cfg.get("print_only_if_issues", False) and not has_issue:
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] All OK — skipping print.")
+        else:
+            print_report(sections)

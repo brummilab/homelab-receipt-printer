@@ -349,6 +349,16 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
         <input type="text" x-model="cfg.schedule" placeholder="0 6 * * *">
         <div class="hint" x-text="cronHint()"></div>
       </div>
+      <div class="toggle-row" style="margin-top:14px;">
+        <div>
+          <div class="toggle-label">Only print on issues</div>
+          <div class="toggle-sub">Skip print if everything is OK</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" x-model="cfg.print_only_if_issues">
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -595,7 +605,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 <script>
 function app() {
   return {
-    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', schedule_enabled: false, checks: {}, services: { pangolin_url: '' }, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
+    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', schedule_enabled: false, print_only_if_issues: false, checks: {}, services: { pangolin_url: '' }, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
     saving: false,
     printing: false,
     printLog: '',
