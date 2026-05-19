@@ -1,20 +1,26 @@
 # homelab-receipt-printer
 
-Prints a daily thermal receipt with homelab status on an ESC/POS thermal printer.  
-All settings configurable through a web UI — no file editing required.
+A Docker container that prints a daily homelab health report on a thermal receipt printer.  
+All settings configurable through a dark web UI — no file editing required.
 
-## What is checked
+![Web UI](https://img.shields.io/badge/Web_UI-port_8085-2d7ef7)
+![ESC/POS](https://img.shields.io/badge/Printer-ESC%2FPOS-green)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+
+---
+
+## What gets printed
 
 | Section | Content |
 |---|---|
 | **System** | Uptime, CPU load, RAM usage |
-| **Docker** | Each container individually: name + status (running / stopped / unhealthy) |
+| **Docker** | Every managed container: name + status (running / stopped / unhealthy) |
 | **ZFS** | Pool status via TrueNAS REST API (ONLINE / degraded) |
-| **Disk** | Usage of configured mount points, WARN at configurable %, FAIL at 95% |
+| **Disk** | Mount point usage, configurable WARN %, FAIL at 95% |
 | **Backups** | Age of backup directories, WARN after configurable hours |
-| **Network** | DNS resolution, Pangolin reverse proxy reachability |
-| **Websites** | HTTP status + response time for arbitrary URLs |
-| **AdGuard Home** | DNS queries today, blocked queries + block rate |
+| **Network** | DNS resolution, reverse proxy reachability |
+| **Websites** | HTTP status + response time for any URL |
+| **AdGuard Home** | DNS queries today, blocked count + block rate |
 
 All sections can be individually enabled or disabled.
 
@@ -22,45 +28,52 @@ All sections can be individually enabled or disabled.
 
 Available at `http://<server-ip>:8085` after startup.
 
-- Choose printer backend (USB or Network/LAN)
-- Upload logo (printed at the top of the receipt)
-- Enable/disable sections
-- Configure TrueNAS, AdGuard Home, Pangolin URLs and credentials
-- Add websites to monitor
-- Manage backup paths and disk mount points
-- Set cron schedule (with enable/disable toggle)
-- **Status Preview** — run all checks live without printing
-- **Print Receipt** — trigger manually at any time
-- **Export / Import** config as JSON (action bar)
+- Printer backend: USB or Network/LAN (ESC/POS port 9100)
+- Upload a logo — printed at the top of every receipt
+- Enable/disable individual sections
+- Configure TrueNAS API, AdGuard Home, Pangolin, websites, backup paths, disk mounts
+- Schedule toggle with cron expression (automatic daily print)
+- **Status Preview** — run all checks live in the browser without printing
+- **Print Now** — trigger a receipt manually at any time
+- **Export / Import** config as JSON
 
-Configuration is stored at `./config/config.json` (bind mount, survives stack removal).
+Configuration is stored in `./config/config.json` and survives container rebuilds.
+
+## Hardware
+
+Any ESC/POS thermal printer works. Tested with:
+
+- **NetumScan 80mm** ([Amazon](https://www.amazon.de/dp/B0CJ6V4TYP)) — ~35 €, USB + Ethernet, recommended
+- Any other 80mm ESC/POS printer (Epson TM series, Xprinter, etc.)
+
+**Network/LAN printers are recommended** — no USB passthrough needed, works from any host.
 
 ## Installation
 
 ```bash
-cd /mnt/tank/configs
 git clone https://github.com/brummilab/homelab-receipt-printer.git
 cd homelab-receipt-printer
 docker compose up -d --build
 ```
 
-Open the web UI at `http://<server-ip>:8085` and configure everything there.
+Open `http://<server-ip>:8085` and configure everything through the web UI.
 
-### Automatic updates via cron
+### TrueNAS / automatic updates
 
 ```bash
-# crontab -e on TrueNAS
-0 3 * * * cd /mnt/tank/configs/homelab-receipt-printer && git pull && docker compose up -d --build >> /var/log/receipt-update.log 2>&1
+# Clone to your config directory
+cd /mnt/tank/configs
+git clone https://github.com/brummilab/homelab-receipt-printer.git
+
+# Auto-update via cron (TrueNAS: System → Advanced → Cron Jobs)
+0 3 * * * cd /mnt/tank/configs/homelab-receipt-printer && git pull && docker compose up -d --build
 ```
 
-### Printer connection
+### Printer setup
 
-**Network (LAN/Ethernet) — recommended:**  
-No host setup needed. Enter the printer IP and port `9100` in the web UI.
+**Network (recommended):** Enter IP + port `9100` in the web UI — nothing else needed.
 
-**USB:**  
-Uncomment the `devices:` block in `docker-compose.yml`, then set permissions:
-
+**USB:** Uncomment the `devices:` block in `docker-compose.yml`, then:
 ```bash
 sudo chmod a+rw /dev/usb/lp0
 ```
@@ -68,19 +81,15 @@ sudo chmod a+rw /dev/usb/lp0
 ### Useful commands
 
 ```bash
-docker logs -f receipt-printer                    # live logs
-docker exec receipt-printer python /app/healthcheck.py  # manual print
+docker logs -f receipt-printer                          # live logs
+docker exec receipt-printer python /app/healthcheck.py  # trigger manually
 ```
 
 ## Configuration
 
-All settings are managed through the web UI. The only environment variable needed is `TZ`.
+Everything is managed through the web UI. The only environment variable is `TZ` (timezone).
 
-Use **Export** in the action bar to back up your config, and **Import** to restore it.
-
-| Variable | Default | Description |
-|---|---|---|
-| `TZ` | `Europe/Vienna` | Timezone |
+Use **Export** in the action bar to back up your config as JSON, and **Import** to restore it.
 
 ## Project structure
 
