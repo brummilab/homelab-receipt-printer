@@ -29,7 +29,7 @@ body {
   padding-bottom: 72px;
 }
 
-/* ── Header ── */
+/* Header */
 .header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -45,7 +45,7 @@ body {
 .header h1  { font-size: 17px; font-weight: 600; line-height: 1; }
 .header sub { color: var(--muted); font-size: 12px; }
 
-/* ── Layout ── */
+/* Layout */
 .main {
   max-width: 920px;
   margin: 0 auto;
@@ -58,9 +58,9 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-@media (max-width: 620px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
 
-/* ── Cards ── */
+/* Cards */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -76,10 +76,9 @@ body {
   margin-bottom: 16px;
 }
 
-/* ── Form fields ── */
+/* Fields */
 .field { margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
-
 .label {
   display: block;
   font-size: 13px;
@@ -91,6 +90,8 @@ body {
   color: var(--muted);
   margin-top: 4px;
 }
+.mt  { margin-top: 14px; }
+.mt-sm { margin-top: 6px; }
 
 input[type=text],
 input[type=password],
@@ -108,10 +109,11 @@ input[type=number] {
 input[type=text]:focus,
 input[type=password]:focus,
 input[type=number]:focus { border-color: var(--accent); }
-input[type=number] { width: 90px; }
-input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; }
+input[type=number]  { width: 80px; }
+input[type=radio]   { accent-color: var(--accent); cursor: pointer; width: auto; }
+input[type=checkbox]{ accent-color: var(--accent); cursor: pointer; width: auto; }
 
-/* ── Toggles ── */
+/* Toggle switch */
 .toggle-row {
   display: flex;
   align-items: center;
@@ -145,10 +147,14 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 .switch input:checked + .slider { background: var(--accent); }
 .switch input:checked + .slider::before { transform: translateX(20px); }
 
-/* ── Backup paths ── */
+/* Radio group */
+.radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
+.radio-label { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 14px; }
+
+/* Path lists */
 .path-list { display: grid; gap: 8px; margin-bottom: 8px; }
 .path-row  { display: flex; gap: 8px; }
-.path-row input { flex: 1; }
+.path-row input { flex: 1; width: auto; }
 
 .btn-icon {
   background: none;
@@ -160,6 +166,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   font-size: 13px;
   line-height: 1;
   transition: border-color .15s, color .15s;
+  flex-shrink: 0;
 }
 .btn-icon:hover { border-color: var(--danger); color: var(--danger); }
 
@@ -178,7 +185,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
 .inline { display: flex; align-items: center; gap: 10px; }
 
-/* ── Buttons ── */
+/* Buttons */
 .btn {
   padding: 8px 20px;
   border-radius: 6px;
@@ -190,18 +197,40 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   white-space: nowrap;
 }
 .btn:disabled { opacity: .45; cursor: default; pointer-events: none; }
-
 .btn-ghost {
   background: none;
   border: 1px solid var(--border);
   color: var(--text);
 }
 .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { opacity: .85; }
 
-/* ── Action bar ── */
+/* Logo */
+.logo-area { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+.logo-preview { flex: 0 0 auto; }
+.logo-img { max-width: 180px; max-height: 100px; display: block; image-rendering: pixelated; }
+.logo-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.logo-empty {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  padding: 20px 32px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.logo-hint { flex: 1; min-width: 160px; color: var(--muted); font-size: 12px; line-height: 1.7; padding-top: 4px; }
+
+/* Action bar */
 .action-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -209,54 +238,42 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   border-top: 1px solid var(--border);
   padding: 12px 24px;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   gap: 10px;
   z-index: 20;
 }
 
-/* ── Status preview ── */
+/* Status preview */
 .status-overall {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   font-weight: 700;
   font-size: 15px;
   padding: 6px 14px;
   border-radius: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
-.status-overall.OK   { background: rgba(63,185,80,.15); color: var(--success); }
-.status-overall.WARN { background: rgba(210,153,34,.15); color: var(--warn); }
-.status-overall.FAIL { background: rgba(248,81,73,.15);  color: var(--danger); }
+.status-overall.ok   { background: rgba(63,185,80,.15);  color: var(--success); }
+.status-overall.warn { background: rgba(210,153,34,.15); color: var(--warn); }
+.status-overall.fail { background: rgba(248,81,73,.15);  color: var(--danger); }
 
-.status-section { margin-bottom: 14px; }
-.status-section:last-child { margin-bottom: 0; }
+.status-section { margin-bottom: 12px; }
 .status-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 4px;
 }
-.status-row {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  font-size: 13px;
-  line-height: 1.8;
-}
-.dot { font-size: 9px; flex-shrink: 0; margin-top: 2px; }
-.dot.OK   { color: var(--success); }
-.dot.WARN { color: var(--warn); }
-.dot.FAIL { color: var(--danger); }
+.status-row { display: flex; align-items: baseline; gap: 7px; font-size: 13px; line-height: 1.8; }
+.dot { font-size: 9px; flex-shrink: 0; }
+.dot.ok   { color: var(--success); }
+.dot.warn { color: var(--warn); }
+.dot.fail { color: var(--danger); }
 .status-label  { color: var(--text); }
 .status-detail { color: var(--muted); }
 
-/* ── Log box ── */
+/* Log box */
 .log-box {
-  margin-top: 14px;
+  margin-top: 12px;
   background: #010409;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -271,14 +288,13 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 }
 .log-box.err { color: var(--danger); }
 
-/* ── Toast ── */
+/* Toast */
 .toast {
   position: fixed;
   top: 66px; right: 16px;
   padding: 10px 16px;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13px; font-weight: 600;
   z-index: 99;
   color: #fff;
   pointer-events: none;
@@ -301,40 +317,47 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
 <div class="main">
 
-  <!-- Printer & Schedule -->
+  <!-- Printer + Schedule -->
   <div class="grid-2">
+
+    <!-- Printer -->
     <div class="card">
       <div class="card-title">Printer</div>
+
       <div class="field">
         <label class="label">Connection</label>
-        <div class="inline" style="gap:20px;">
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;">
+        <div class="radio-group">
+          <label class="radio-label">
             <input type="radio" x-model="cfg.printer.backend" value="usb"> USB
           </label>
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;">
+          <label class="radio-label">
             <input type="radio" x-model="cfg.printer.backend" value="network"> Network (LAN)
           </label>
         </div>
       </div>
-      <div class="field" x-show="cfg.printer.backend !== 'network'">
+
+      <div class="field" x-show="cfg.printer.backend === 'usb'">
         <label class="label">Device Path</label>
         <input type="text" x-model="cfg.printer.device" placeholder="/dev/usb/lp0">
       </div>
+
       <div x-show="cfg.printer.backend === 'network'">
         <div class="field">
           <label class="label">IP Address</label>
           <input type="text" x-model="cfg.printer.host" placeholder="192.168.1.100">
         </div>
-        <div class="field" style="margin-bottom:0;">
+        <div class="field">
           <label class="label">Port</label>
-          <input type="number" x-model.number="cfg.printer.port" placeholder="9100" min="1" max="65535">
+          <input type="number" x-model.number="cfg.printer.port" placeholder="9100" min="1" max="65535" style="width:100px">
         </div>
       </div>
     </div>
 
+    <!-- Schedule -->
     <div class="card">
       <div class="card-title">Schedule</div>
-      <div class="toggle-row" style="margin-bottom:14px;">
+
+      <div class="toggle-row">
         <div>
           <div class="toggle-label">Automatic schedule</div>
           <div class="toggle-sub">Print receipt via cron</div>
@@ -344,12 +367,14 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
           <span class="slider"></span>
         </label>
       </div>
-      <div class="field" x-show="cfg.schedule_enabled">
+
+      <div class="field mt" x-show="cfg.schedule_enabled">
         <label class="label">Cron Expression</label>
         <input type="text" x-model="cfg.schedule" placeholder="0 6 * * *">
         <div class="hint" x-text="cronHint()"></div>
       </div>
-      <div class="toggle-row" style="margin-top:14px;">
+
+      <div class="toggle-row" style="margin-top:4px;">
         <div>
           <div class="toggle-label">Only print on issues</div>
           <div class="toggle-sub">Skip print if everything is OK</div>
@@ -365,44 +390,24 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   <!-- Logo -->
   <div class="card">
     <div class="card-title">Logo</div>
-    <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
-      <div style="flex:0 0 auto;">
-        <div x-show="logoUrl" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;display:inline-block;margin-bottom:10px;">
-          <img :src="logoUrl" style="max-width:180px;max-height:100px;display:block;image-rendering:pixelated;">
+    <div class="logo-area">
+      <div class="logo-preview">
+        <div class="logo-box" x-show="logoUrl">
+          <img class="logo-img" :src="logoUrl || ''">
         </div>
-        <div x-show="!logoUrl" style="background:var(--bg);border:1px dashed var(--border);border-radius:6px;padding:20px 32px;color:var(--muted);font-size:13px;text-align:center;margin-bottom:10px;">
-          No Logo
-        </div>
-        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;" class="btn btn-ghost">
+        <div class="logo-empty" x-show="!logoUrl">No Logo</div>
+        <label class="btn btn-ghost" style="cursor:pointer; display:inline-flex; align-items:center; gap:7px; margin-top:10px;">
           <span x-show="!logoUploading">Upload Image</span>
           <span x-show="logoUploading">Uploading…</span>
           <input type="file" accept="image/*" style="display:none" :disabled="logoUploading" @change="uploadLogo($event)">
         </label>
       </div>
-      <div style="flex:1;min-width:160px;color:var(--muted);font-size:12px;line-height:1.7;padding-top:4px;">
+      <div class="logo-hint">
         Printed at the top of the receipt.<br>
         Recommended: square, high contrast.<br>
         Scaled to max. 400 px width.<br>
         Saved at <code style="font-size:11px;">/config/logo.png</code>
       </div>
-    </div>
-  </div>
-
-  <!-- Docker -->
-  <div class="card">
-    <div class="card-title">Docker</div>
-    <div class="field">
-      <label class="label">Hide Containers (Substring)</label>
-      <div class="path-list">
-        <template x-for="(_, i) in cfg.docker.exclude" :key="i">
-          <div class="path-row">
-            <input type="text" x-model="cfg.docker.exclude[i]" placeholder="postgres">
-            <button class="btn-icon" @click="cfg.docker.exclude.splice(i, 1)" title="Remove">✕</button>
-          </div>
-        </template>
-      </div>
-      <button class="btn-add" @click="cfg.docker.exclude.push('')">+ Add Pattern</button>
-      <div class="hint" style="margin-top:8px;">Containers whose name contains this text will be ignored.</div>
     </div>
   </div>
 
@@ -417,7 +422,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
         </div>
         <label class="switch">
           <input type="checkbox"
-                 :checked="cfg.checks && cfg.checks[key]"
+                 :checked="cfg.checks[key] !== false"
                  @change="cfg.checks[key] = $event.target.checked">
           <span class="slider"></span>
         </label>
@@ -425,79 +430,112 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </template>
   </div>
 
-  <!-- TrueNAS -->
+  <!-- Docker -->
   <div class="card">
-    <div class="card-title">TrueNAS</div>
-    <div class="grid-2">
-      <div>
-        <div class="field">
-          <label class="label">URL</label>
-          <input type="text" x-model="cfg.truenas.url" placeholder="http://192.168.1.50">
-        </div>
-      </div>
-      <div>
-        <div class="field">
-          <label class="label">API Key</label>
-          <input type="password" x-model="cfg.truenas.api_key" placeholder="••••••••">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AdGuard Home -->
-  <div class="card">
-    <div class="card-title">AdGuard Home</div>
-    <div class="grid-2">
-      <div>
-        <div class="field">
-          <label class="label">URL</label>
-          <input type="text" x-model="cfg.adguard.url" placeholder="http://192.168.1.1:3000">
-        </div>
-      </div>
-      <div>
-        <div class="field">
-          <label class="label">Username</label>
-          <input type="text" x-model="cfg.adguard.username" placeholder="admin">
-        </div>
-        <div class="field">
-          <label class="label">Password</label>
-          <input type="password" x-model="cfg.adguard.password" placeholder="••••••••">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Backups -->
-  <div class="card">
-    <div class="card-title">Backups</div>
+    <div class="card-title">Docker</div>
     <div class="field">
-      <label class="label">Paths</label>
+      <label class="label">Hide Containers (Substring Match)</label>
       <div class="path-list">
-        <template x-for="(_, i) in cfg.backups.paths" :key="i">
+        <template x-for="(_, i) in cfg.docker.exclude" :key="i">
           <div class="path-row">
-            <input type="text" x-model="cfg.backups.paths[i]" placeholder="/backups/immich">
-            <button class="btn-icon" @click="cfg.backups.paths.splice(i, 1)" title="Remove">✕</button>
+            <input type="text" x-model="cfg.docker.exclude[i]" placeholder="postgres">
+            <button class="btn-icon" @click="cfg.docker.exclude.splice(i, 1)" title="Remove">✕</button>
           </div>
         </template>
       </div>
-      <button class="btn-add" @click="cfg.backups.paths.push('')">+ Add Path</button>
+      <button class="btn-add" @click="cfg.docker.exclude.push('')">+ Add Pattern</button>
+      <div class="hint mt-sm">Containers whose name contains this text are excluded from the report.</div>
     </div>
-    <div class="field">
-      <label class="label">Max. Age (Hours)</label>
-      <div class="inline">
-        <input type="number" x-model.number="cfg.backups.max_age_hours" min="1" max="720">
-        <span class="hint" x-text="`= ${(cfg.backups.max_age_hours / 24).toFixed(1)} days`"></span>
+  </div>
+
+  <!-- TrueNAS + AdGuard -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">TrueNAS</div>
+      <div class="field">
+        <label class="label">URL</label>
+        <input type="text" x-model="cfg.truenas.url" placeholder="http://192.168.1.50">
+      </div>
+      <div class="field">
+        <label class="label">API Key</label>
+        <input type="password" x-model="cfg.truenas.api_key" placeholder="••••••••">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">AdGuard Home</div>
+      <div class="field">
+        <label class="label">URL</label>
+        <input type="text" x-model="cfg.adguard.url" placeholder="http://192.168.1.1:3000">
+      </div>
+      <div class="field">
+        <label class="label">Username</label>
+        <input type="text" x-model="cfg.adguard.username" placeholder="admin">
+      </div>
+      <div class="field">
+        <label class="label">Password</label>
+        <input type="password" x-model="cfg.adguard.password" placeholder="••••••••">
       </div>
     </div>
   </div>
 
-  <!-- Websites -->
+  <!-- Backups + Disk -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Backups</div>
+      <div class="field">
+        <label class="label">Paths</label>
+        <div class="path-list">
+          <template x-for="(_, i) in cfg.backups.paths" :key="i">
+            <div class="path-row">
+              <input type="text" x-model="cfg.backups.paths[i]" placeholder="/backups/immich">
+              <button class="btn-icon" @click="cfg.backups.paths.splice(i, 1)" title="Remove">✕</button>
+            </div>
+          </template>
+        </div>
+        <button class="btn-add" @click="cfg.backups.paths.push('')">+ Add Path</button>
+        <div class="hint mt-sm">Use container paths (e.g. <code>/backups</code>)</div>
+      </div>
+      <div class="field">
+        <label class="label">Max. Age</label>
+        <div class="inline">
+          <input type="number" x-model.number="cfg.backups.max_age_hours" min="1" max="720">
+          <span class="hint" x-text="`hours (= ${(cfg.backups.max_age_hours/24).toFixed(1)} days)`"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Disk</div>
+      <div class="field">
+        <label class="label">Mount Points</label>
+        <div class="path-list">
+          <template x-for="(_, i) in cfg.disk.paths" :key="i">
+            <div class="path-row">
+              <input type="text" x-model="cfg.disk.paths[i]" placeholder="/mnt/tank">
+              <button class="btn-icon" @click="cfg.disk.paths.splice(i, 1)" title="Remove">✕</button>
+            </div>
+          </template>
+        </div>
+        <button class="btn-add" @click="cfg.disk.paths.push('')">+ Add Path</button>
+      </div>
+      <div class="field">
+        <label class="label">Warn Threshold</label>
+        <div class="inline">
+          <input type="number" x-model.number="cfg.disk.warn_percent" min="1" max="99">
+          <span class="hint">% used (FAIL at 95%)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Websites & Network -->
   <div class="card">
-    <div class="card-title">Websites</div>
+    <div class="card-title">Websites &amp; Network</div>
     <div class="field">
       <label class="label">Reverse Proxy URL</label>
       <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
-      <div class="hint">Reachability check for your reverse proxy (e.g. Pangolin, Nginx Proxy Manager)</div>
+      <div class="hint">Reachability check for your reverse proxy (Pangolin, Nginx Proxy Manager, …)</div>
     </div>
     <div class="field">
       <label class="label">Additional URLs</label>
@@ -513,81 +551,59 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </div>
   </div>
 
-  <!-- Disk -->
-  <div class="card">
-    <div class="card-title">Disk</div>
-    <div class="field">
-      <label class="label">Mount Points</label>
-      <div class="path-list">
-        <template x-for="(_, i) in cfg.disk.paths" :key="i">
-          <div class="path-row">
-            <input type="text" x-model="cfg.disk.paths[i]" placeholder="/mnt/tank">
-            <button class="btn-icon" @click="cfg.disk.paths.splice(i, 1)" title="Remove">✕</button>
-          </div>
-        </template>
-      </div>
-      <button class="btn-add" @click="cfg.disk.paths.push('')">+ Add Path</button>
-    </div>
-    <div class="field">
-      <label class="label">Warn Threshold</label>
-      <div class="inline">
-        <input type="number" x-model.number="cfg.disk.warn_percent" min="1" max="99">
-        <span class="hint">% used (FAIL at 95%)</span>
-      </div>
-    </div>
-  </div>
-
   <!-- Tip / Trinkgeld -->
   <div class="card">
     <div class="card-title">Tip / Trinkgeld</div>
-    <div class="field">
-      <label class="label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" x-model="cfg.tip.enabled">
-        Print tip section on receipt
-      </label>
-      <p class="hint">Prints a message and QR code at the bottom of every receipt — like a restaurant tip prompt.</p>
-    </div>
-    <template x-if="cfg.tip.enabled">
+    <div class="toggle-row">
       <div>
-        <div class="field">
-          <label class="label">Payment / Donation URL</label>
-          <input type="text" x-model="cfg.tip.url" placeholder="https://ko-fi.com/yourname">
-          <p class="hint">The URL is printed as a QR code (PayPal, Ko-fi, GitHub Sponsors, …)</p>
-        </div>
-        <div class="field">
-          <label class="label">Message</label>
-          <input type="text" x-model="cfg.tip.message" placeholder="Enjoyed this receipt? Buy me a coffee!">
-          <p class="hint">Short text printed above the QR code (max ~64 chars)</p>
-        </div>
+        <div class="toggle-label">Enable tip section on receipt</div>
+        <div class="toggle-sub">Prints a message and QR code at the bottom</div>
       </div>
-    </template>
+      <label class="switch">
+        <input type="checkbox" x-model="cfg.tip.enabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="mt" x-show="cfg.tip.enabled">
+      <div class="field">
+        <label class="label">Payment / Donation URL</label>
+        <input type="text" x-model="cfg.tip.url" placeholder="https://ko-fi.com/yourname">
+        <div class="hint">Printed as a QR code — Ko-fi, PayPal, GitHub Sponsors, …</div>
+      </div>
+      <div class="field">
+        <label class="label">Message</label>
+        <input type="text" x-model="cfg.tip.message" placeholder="Enjoyed this receipt? Buy me a coffee!">
+      </div>
+    </div>
   </div>
 
   <!-- Status Preview -->
   <div class="card">
     <div class="card-title">Status Preview</div>
     <button class="btn btn-ghost" @click="checkStatus()" :disabled="checking">
-      <span x-show="!checking">⟳ Check Status</span>
+      <span x-show="!checking">⟳ Run Status Check</span>
       <span x-show="checking">Checking…</span>
     </button>
 
-    <template x-if="statusData">
-      <div style="margin-top:16px;">
-        <div class="status-overall" :class="statusData.overall" x-text="'Overall: ' + statusData.overall"></div>
-        <template x-for="[key, label] in statusSectionLabels" :key="key">
-          <div class="status-section" x-show="statusData.sections[key]">
-            <div class="status-section-title" x-text="label"></div>
-            <template x-for="row in (statusData.sections[key] || [])" :key="row[1]">
-              <div class="status-row">
-                <span class="dot" :class="row[0]">●</span>
-                <span class="status-label" x-text="row[1]"></span>
-                <span class="status-detail" x-show="row[2]" x-text="'· ' + row[2]"></span>
-              </div>
-            </template>
-          </div>
-        </template>
-      </div>
-    </template>
+    <div x-show="statusError" class="log-box err" x-text="statusError"></div>
+
+    <div x-show="statusData !== null" class="mt">
+      <div class="status-overall"
+           :class="(statusData && statusData.overall || '').toLowerCase()"
+           x-text="'Overall: ' + (statusData && statusData.overall || '')"></div>
+      <template x-for="[key, label] in sectionLabels" :key="key">
+        <div class="status-section" x-show="statusData && statusData.sections && statusData.sections[key]">
+          <div class="status-section-title" x-text="label"></div>
+          <template x-for="row in (statusData && statusData.sections && statusData.sections[key] || [])" :key="row[1]">
+            <div class="status-row">
+              <span class="dot" :class="(row[0] || '').toLowerCase()">●</span>
+              <span class="status-label" x-text="row[1]"></span>
+              <span class="status-detail" x-show="row[2]" x-text="'· ' + row[2]"></span>
+            </div>
+          </template>
+        </div>
+      </template>
+    </div>
   </div>
 
   <!-- Print Now -->
@@ -604,7 +620,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 
 <!-- Action bar -->
 <div class="action-bar">
-  <label class="btn btn-ghost" style="cursor:pointer;" title="Import config from JSON file">
+  <label class="btn btn-ghost" style="cursor:pointer;" title="Import config from JSON">
     <span x-show="!importing">↑ Import</span>
     <span x-show="importing">Importing…</span>
     <input type="file" accept=".json,application/json" style="display:none" :disabled="importing" @change="importConfig($event)">
@@ -626,22 +642,49 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 <script>
 function app() {
   return {
-    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', schedule_enabled: false, print_only_if_issues: false, checks: {}, services: { pangolin_url: '' }, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] }, tip: { enabled: false, url: '', message: 'Enjoyed this receipt? Buy me a coffee!' } },
-    saving: false,
-    printing: false,
-    printLog: '',
-    printOk: true,
-    logoUrl: null,
+    /* ── State ── */
+    cfg: {
+      printer:              { backend: 'usb', device: '/dev/usb/lp0', host: '', port: 9100 },
+      schedule:             '0 6 * * *',
+      schedule_enabled:     false,
+      print_only_if_issues: false,
+      checks:               { system: true, docker: true, zfs: true, disk: true, backups: true, network: true, websites: true, adguard: true },
+      services:             { pangolin_url: '' },
+      adguard:              { url: '', username: '', password: '' },
+      truenas:              { url: '', api_key: '' },
+      backups:              { paths: [], max_age_hours: 48 },
+      disk:                 { paths: [], warn_percent: 85 },
+      websites:             { urls: [] },
+      docker:               { exclude: [] },
+      tip:                  { enabled: false, url: '', message: 'Enjoyed this receipt? Buy me a coffee!' },
+    },
+    saving:      false,
+    printing:    false,
+    printLog:    '',
+    printOk:     true,
+    logoUrl:     null,
     logoUploading: false,
-    checking: false,
-    statusData: null,
-    importing: false,
-    toast: { show: false, msg: '', type: 'ok' },
+    checking:    false,
+    statusData:  null,
+    statusError: '',
+    importing:   false,
+    toast:       { show: false, msg: '', type: 'ok' },
 
-    statusSectionLabels: [
+    /* ── Static config ── */
+    sections: [
+      ['system',   'System',    'Uptime, CPU, RAM'],
+      ['docker',   'Docker',    'Container status'],
+      ['zfs',      'ZFS',       'Pool health via TrueNAS API'],
+      ['disk',     'Disk',      'Disk usage by mount point'],
+      ['backups',  'Backups',   'Age of backup directories'],
+      ['network',  'Network',   'DNS resolution + Reverse Proxy'],
+      ['websites', 'Websites',  'HTTP status + response time'],
+      ['adguard',  'AdGuard',   'DNS query statistics'],
+    ],
+    sectionLabels: [
       ['system',   'System'],
       ['docker',   'Docker'],
-      ['zfs',      'ZFS'],
+      ['zfs',      'Storage / ZFS'],
       ['disk',     'Disk'],
       ['backups',  'Backups'],
       ['network',  'Network'],
@@ -649,24 +692,33 @@ function app() {
       ['adguard',  'AdGuard Home'],
     ],
 
-    sections: [
-      ['system',   'System',    'Uptime, CPU, RAM'],
-      ['docker',   'Docker',    'Container status'],
-      ['zfs',      'ZFS',       'Pool health'],
-      ['disk',     'Disk',      'Disk usage'],
-      ['backups',  'Backups',   'Age of backup directories'],
-      ['network',  'Network',   'DNS, Reverse Proxy'],
-      ['websites', 'Websites',  'HTTP status + response time'],
-      ['adguard',  'AdGuard',   'DNS statistics'],
-    ],
-
+    /* ── Init: in-place merge to preserve Alpine reactivity ── */
     async init() {
-      const r = await fetch('/api/config');
-      const data = await r.json();
-      // In-place merge: keeps Alpine.js reactivity intact on existing objects
+      this.statusData  = null;
+      this.statusError = '';
+      this.printLog    = '';
+      try {
+        const r    = await fetch('/api/config');
+        const data = await r.json();
+        this._applyConfig(data);
+      } catch (e) {
+        this.showToast('Could not load config', 'err');
+      }
+      try {
+        const lr = await fetch('/api/logo');
+        this.logoUrl = lr.status === 200 ? `/api/logo?t=${Date.now()}` : null;
+      } catch {}
+    },
+
+    /* Update cfg in-place (avoids replacing reactive proxy) */
+    _applyConfig(data) {
       for (const [k, v] of Object.entries(data)) {
-        if (v !== null && typeof v === 'object' && !Array.isArray(v) &&
-            this.cfg[k] !== null && typeof this.cfg[k] === 'object') {
+        if (
+          v !== null && typeof v === 'object' && !Array.isArray(v) &&
+          this.cfg[k] !== null && this.cfg[k] !== undefined &&
+          typeof this.cfg[k] === 'object' && !Array.isArray(this.cfg[k])
+        ) {
+          // Merge nested object in-place
           for (const [k2, v2] of Object.entries(v)) {
             this.cfg[k][k2] = v2;
           }
@@ -674,10 +726,9 @@ function app() {
           this.cfg[k] = v;
         }
       }
-      const lr = await fetch('/api/logo');
-      this.logoUrl = lr.status === 200 ? `/api/logo?t=${Date.now()}` : null;
     },
 
+    /* ── Logo ── */
     async uploadLogo(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -691,7 +742,7 @@ function app() {
           this.logoUrl = `/api/logo?t=${Date.now()}`;
           this.showToast('Logo saved ✓', 'ok');
         } else {
-          this.showToast(d.error || 'Error', 'err');
+          this.showToast(d.error || 'Upload failed', 'err');
         }
       } catch {
         this.showToast('Network error', 'err');
@@ -700,6 +751,7 @@ function app() {
       event.target.value = '';
     },
 
+    /* ── Save config ── */
     async save() {
       this.saving = true;
       try {
@@ -709,53 +761,31 @@ function app() {
           body: JSON.stringify(this.cfg),
         });
         const d = await r.json();
-        d.ok ? this.showToast('Saved ✓', 'ok') : this.showToast(d.error || 'Error', 'err');
+        d.ok ? this.showToast('Saved ✓', 'ok') : this.showToast(d.error || 'Save failed', 'err');
       } catch {
         this.showToast('Network error', 'err');
       }
       this.saving = false;
     },
 
+    /* ── Status check ── */
     async checkStatus() {
-      this.checking = true;
+      this.checking    = true;
+      this.statusData  = null;
+      this.statusError = '';
       try {
         const r = await fetch('/api/status');
         const d = await r.json();
         if (d.ok) {
           this.statusData = d;
         } else {
-          this.showToast(d.error || 'Error', 'err');
+          this.statusError = d.error || 'Status check failed';
         }
-      } catch {
-        this.showToast('Network error', 'err');
+      } catch (e) {
+        this.statusError = 'Network error: ' + e.message;
       }
       this.checking = false;
     },
 
-    async printNow() {
-      this.printing = true;
-      this.printLog = '';
-      try {
-        const r = await fetch('/api/print', { method: 'POST' });
-        const d = await r.json();
-        this.printOk = d.ok;
-        this.printLog = d.log || (d.ok ? 'Receipt printed.' : 'Print error.');
-      } catch {
-        this.printOk = false;
-        this.printLog = 'Network error';
-      }
-      this.printing = false;
-    },
-
-    exportConfig() {
-      const blob = new Blob([JSON.stringify(this.cfg, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'receipt-printer-config.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-
-    async importConfig(event) {
-      const file = 
+    /* ── Print now ── */
+  

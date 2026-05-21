@@ -235,15 +235,18 @@ def check_backups():
 def check_network():
     results = []
 
-    # Pangolin reverse proxy
-    try:
-        r = requests.get(PANGOLIN_URL, timeout=TIMEOUT, allow_redirects=True)
-        if r.status_code < 500:
-            results.append(ok("Pangolin", f"HTTP {r.status_code}"))
-        else:
-            results.append(warn("Pangolin", f"HTTP {r.status_code}"))
-    except Exception as e:
-        results.append(fail("Pangolin", "unreachable"))
+    # Reverse proxy check (only if URL is configured)
+    if PANGOLIN_URL:
+        try:
+            r = requests.get(PANGOLIN_URL, timeout=TIMEOUT, allow_redirects=True)
+            label = PANGOLIN_URL.split("//")[-1].split("/")[0][:16]
+            if r.status_code < 500:
+                results.append(ok(label, f"HTTP {r.status_code}"))
+            else:
+                results.append(warn(label, f"HTTP {r.status_code}"))
+        except Exception:
+            label = PANGOLIN_URL.split("//")[-1].split("/")[0][:16]
+            results.append(fail(label, "unreachable"))
 
     # DNS check
     try:
@@ -251,6 +254,9 @@ def check_network():
         results.append(ok("DNS", "resolving"))
     except Exception:
         results.append(fail("DNS", "failed"))
+
+    if not results:
+        results.append(ok("Network", "DNS OK"))
 
     return results
 
@@ -439,9 +445,4 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
     print("=" * 32)
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-def _run_checks():
-    checks = _cfg.get("checks", {})
-    section_fns = {
-        "system":   check_system,
-        "docker":   check
+# ── Main ───────────────────────────
