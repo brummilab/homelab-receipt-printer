@@ -643,6 +643,18 @@ function app() {
     importing: false,
     toast: { show: false, msg: '', type: 'ok' },
 
+    _merge(defaults, incoming) {
+      const out = { ...defaults };
+      for (const k of Object.keys(incoming)) {
+        if (incoming[k] !== null && typeof incoming[k] === 'object' && !Array.isArray(incoming[k])) {
+          out[k] = this._merge(defaults[k] || {}, incoming[k]);
+        } else {
+          out[k] = incoming[k];
+        }
+      }
+      return out;
+    },
+
     statusSectionLabels: [
       ['system',   'System'],
       ['docker',   'Docker'],
@@ -667,7 +679,9 @@ function app() {
 
     async init() {
       const r = await fetch('/api/config');
-      this.cfg = await r.json();
+      const data = await r.json();
+      // Deep-merge so missing keys (e.g. tip) fall back to defaults
+      this.cfg = this._merge(this.cfg, data);
       const lr = await fetch('/api/logo');
       this.logoUrl = lr.status === 200 ? `/api/logo?t=${Date.now()}` : null;
     },
@@ -748,20 +762,4 @@ function app() {
       a.href = url;
       a.download = 'receipt-printer-config.json';
       a.click();
-      URL.revokeObjectURL(url);
-    },
-
-    async importConfig(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      this.importing = true;
-      try {
-        const text = await file.text();
-        JSON.parse(text); // validate JSON before sending
-        const r = await fetch('/api/config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: text,
-        });
-        const d = await r.json();
-        if (d.
+   
