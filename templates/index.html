@@ -425,16 +425,6 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </template>
   </div>
 
-  <!-- Network -->
-  <div class="card">
-    <div class="card-title">Network</div>
-    <div class="field">
-      <label class="label">Pangolin URL</label>
-      <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
-      <div class="hint">Reverse proxy reachability check</div>
-    </div>
-  </div>
-
   <!-- TrueNAS -->
   <div class="card">
     <div class="card-title">TrueNAS</div>
@@ -505,7 +495,12 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
   <div class="card">
     <div class="card-title">Websites</div>
     <div class="field">
-      <label class="label">URLs</label>
+      <label class="label">Reverse Proxy URL</label>
+      <input type="text" x-model="cfg.services.pangolin_url" placeholder="https://brummilab.org">
+      <div class="hint">Reachability check for your reverse proxy (e.g. Pangolin, Nginx Proxy Manager)</div>
+    </div>
+    <div class="field">
+      <label class="label">Additional URLs</label>
       <div class="path-list">
         <template x-for="(_, i) in cfg.websites.urls" :key="i">
           <div class="path-row">
@@ -643,18 +638,6 @@ function app() {
     importing: false,
     toast: { show: false, msg: '', type: 'ok' },
 
-    _merge(defaults, incoming) {
-      const out = { ...defaults };
-      for (const k of Object.keys(incoming)) {
-        if (incoming[k] !== null && typeof incoming[k] === 'object' && !Array.isArray(incoming[k])) {
-          out[k] = this._merge(defaults[k] || {}, incoming[k]);
-        } else {
-          out[k] = incoming[k];
-        }
-      }
-      return out;
-    },
-
     statusSectionLabels: [
       ['system',   'System'],
       ['docker',   'Docker'],
@@ -680,8 +663,17 @@ function app() {
     async init() {
       const r = await fetch('/api/config');
       const data = await r.json();
-      // Deep-merge so missing keys (e.g. tip) fall back to defaults
-      this.cfg = this._merge(this.cfg, data);
+      // In-place merge: keeps Alpine.js reactivity intact on existing objects
+      for (const [k, v] of Object.entries(data)) {
+        if (v !== null && typeof v === 'object' && !Array.isArray(v) &&
+            this.cfg[k] !== null && typeof this.cfg[k] === 'object') {
+          for (const [k2, v2] of Object.entries(v)) {
+            this.cfg[k][k2] = v2;
+          }
+        } else {
+          this.cfg[k] = v;
+        }
+      }
       const lr = await fetch('/api/logo');
       this.logoUrl = lr.status === 200 ? `/api/logo?t=${Date.now()}` : null;
     },
@@ -762,4 +754,8 @@ function app() {
       a.href = url;
       a.download = 'receipt-printer-config.json';
       a.click();
-   
+      URL.revokeObjectURL(url);
+    },
+
+    async importConfig(event) {
+      const file = 
