@@ -542,6 +542,32 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
     </div>
   </div>
 
+  <!-- Tip / Trinkgeld -->
+  <div class="card">
+    <div class="card-title">Tip / Trinkgeld</div>
+    <div class="field">
+      <label class="label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" x-model="cfg.tip.enabled">
+        Print tip section on receipt
+      </label>
+      <p class="hint">Prints a message and QR code at the bottom of every receipt — like a restaurant tip prompt.</p>
+    </div>
+    <template x-if="cfg.tip.enabled">
+      <div>
+        <div class="field">
+          <label class="label">Payment / Donation URL</label>
+          <input type="text" x-model="cfg.tip.url" placeholder="https://ko-fi.com/yourname">
+          <p class="hint">The URL is printed as a QR code (PayPal, Ko-fi, GitHub Sponsors, …)</p>
+        </div>
+        <div class="field">
+          <label class="label">Message</label>
+          <input type="text" x-model="cfg.tip.message" placeholder="Enjoyed this receipt? Buy me a coffee!">
+          <p class="hint">Short text printed above the QR code (max ~64 chars)</p>
+        </div>
+      </div>
+    </template>
+  </div>
+
   <!-- Status Preview -->
   <div class="card">
     <div class="card-title">Status Preview</div>
@@ -605,7 +631,7 @@ input[type=radio]  { accent-color: var(--accent); cursor: pointer; width: auto; 
 <script>
 function app() {
   return {
-    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', schedule_enabled: false, print_only_if_issues: false, checks: {}, services: { pangolin_url: '' }, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] } },
+    cfg: { printer: { backend: 'usb', port: 9100 }, schedule: '', schedule_enabled: false, print_only_if_issues: false, checks: {}, services: { pangolin_url: '' }, adguard: { url: '', username: '', password: '' }, truenas: { url: '', api_key: '' }, backups: { paths: [], max_age_hours: 48 }, disk: { paths: [], warn_percent: 85 }, websites: { urls: [] }, docker: { exclude: [] }, tip: { enabled: false, url: '', message: 'Enjoyed this receipt? Buy me a coffee!' } },
     saving: false,
     printing: false,
     printLog: '',
@@ -738,39 +764,4 @@ function app() {
           body: text,
         });
         const d = await r.json();
-        if (d.ok) {
-          await this.init();
-          this.showToast('Config imported ✓', 'ok');
-        } else {
-          this.showToast(d.error || 'Error', 'err');
-        }
-      } catch {
-        this.showToast('Invalid JSON file', 'err');
-      }
-      this.importing = false;
-      event.target.value = '';
-    },
-
-    cronHint() {
-      const parts = (this.cfg.schedule || '').trim().split(/\s+/);
-      if (parts.length !== 5) return 'Invalid expression';
-      const [min, hour, dom, month, dow] = parts;
-      const isNum = s => /^\d+$/.test(s);
-      if (dom === '*' && month === '*' && dow === '*' && isNum(hour) && isNum(min))
-        return `Daily at ${hour.padStart(2,'0')}:${min.padStart(2,'0')}`;
-      if (dom === '*' && month === '*' && isNum(dow) && isNum(hour) && isNum(min)) {
-        const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        return `Every ${days[+dow] ?? dow} at ${hour.padStart(2,'0')}:${min.padStart(2,'0')}`;
-      }
-      return 'Custom schedule';
-    },
-
-    showToast(msg, type) {
-      this.toast = { show: true, msg, type };
-      setTimeout(() => this.toast.show = false, 3000);
-    },
-  };
-}
-</script>
-</body>
-</html>
+        if (d.

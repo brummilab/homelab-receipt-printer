@@ -21,6 +21,7 @@ All settings configurable through a dark web UI — no file editing required.
 | **Network** | DNS resolution, reverse proxy reachability |
 | **Websites** | HTTP status + response time for any URL |
 | **AdGuard Home** | DNS queries today, blocked count + block rate |
+| **Tip / Trinkgeld** | Optional: custom message + QR code for donations (Ko-fi, PayPal, …) |
 
 All sections can be individually enabled or disabled. Values are right-aligned for easy scanning:
 
@@ -44,6 +45,7 @@ Available at `http://<server-ip>:8085` after startup.
 - **Status Preview** — run all checks live in the browser without printing
 - **Print Now** — trigger a receipt manually at any time
 - **Export / Import** config as JSON
+- **Tip / Trinkgeld** — optional donation prompt with QR code at the bottom of each receipt (Ko-fi, PayPal, GitHub Sponsors, …)
 
 Configuration is stored in `./config/config.json` and survives container rebuilds.
 
@@ -106,9 +108,4 @@ Use **Export** in the action bar to back up your config as JSON, and **Import** 
 ├── Dockerfile
 ├── docker-compose.yml
 ├── entrypoint.sh      # Cron setup, starts web UI
-├── config.py          # Config load/save (./config/config.json)
-├── webui.py           # Flask web UI (port 8080 → exposed as 8085)
-├── healthcheck.py     # Health checks + receipt printing
-└── templates/
-    └── index.html     # Web UI frontend
-```
+├── config.py          # Config load/save (./config/c

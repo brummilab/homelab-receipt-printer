@@ -52,6 +52,11 @@ def _defaults():
         "docker": {
             "exclude": ["postgres", "redis", "mysql", "mariadb", "mongo"],
         },
+        "tip": {
+            "enabled": False,
+            "url":     "",
+            "message": "Enjoyed this receipt? Buy me a coffee!",
+        },
     }
 
 
@@ -67,9 +72,3 @@ def load():
         elif isinstance(default_val, dict):
             saved[key] = {**default_val, **saved[key]}
     return saved
-
-
-def save(cfg):
-    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(CONFIG_PATH, "w") as f:
-        json.dump(cfg, f, indent=2)

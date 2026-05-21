@@ -352,6 +352,36 @@ def print_report(sections: dict):
                 line = f"{marker} {label_s:<13}{detail_s:>16}"
                 p.text(line + "\n")
 
+        # Tip / Trinkgeld
+        tip_cfg = _cfg.get("tip", {})
+        if tip_cfg.get("enabled") and tip_cfg.get("url", "").strip():
+            tip_url = tip_cfg["url"].strip()
+            tip_msg = tip_cfg.get("message", "Enjoyed this receipt? Buy me a coffee!").strip()
+            p.text("-" * 32 + "\n")
+            p.set(align="center", bold=True)
+            p.text("Tip / Trinkgeld\n")
+            p.set(align="center", bold=False)
+            # Word-wrap message to 32 chars
+            words = tip_msg.split()
+            line = ""
+            for word in words:
+                if len(line) + len(word) + (1 if line else 0) <= 32:
+                    line = (line + " " + word).strip()
+                else:
+                    if line:
+                        p.text(line + "\n")
+                    line = word
+            if line:
+                p.text(line + "\n")
+            try:
+                p.qr(tip_url, size=6)
+            except Exception as e:
+                print(f"Warning: QR code failed: {e}", file=sys.stderr)
+                # Fallback: print URL as text
+                for i in range(0, len(tip_url), 32):
+                    p.text(tip_url[i:i+32] + "\n")
+            p.text("\n")
+
         # Footer
         p.text("-" * 32 + "\n")
         p.set(align="center")
@@ -399,6 +429,13 @@ def print_to_stdout(now, date_str, time_str, overall, attention, sections):
             label_s = label[:13]
             detail_s = (detail or "")[:16]
             print(f"{marker} {label_s:<13}{detail_s:>16}")
+    tip_cfg = _cfg.get("tip", {})
+    if tip_cfg.get("enabled") and tip_cfg.get("url", "").strip():
+        print("-" * 32)
+        print("Tip / Trinkgeld")
+        msg = tip_cfg.get("message", "Enjoyed this receipt? Buy me a coffee!")
+        print(msg)
+        print(tip_cfg["url"].strip())
     print("=" * 32)
 
 
@@ -407,47 +444,4 @@ def _run_checks():
     checks = _cfg.get("checks", {})
     section_fns = {
         "system":   check_system,
-        "docker":   check_docker,
-        "zfs":      check_zfs,
-        "disk":     check_disk,
-        "backups":  check_backups,
-        "network":  check_network,
-        "websites": check_websites,
-        "adguard":  check_adguard,
-    }
-    return {
-        key: fn()
-        for key, fn in section_fns.items()
-        if checks.get(key, True)
-    }
-
-
-if __name__ == "__main__":
-    import argparse
-    import json as _json
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--json", action="store_true", help="Output results as JSON")
-    args = parser.parse_args()
-
-    if not args.json:
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Running healthcheck...")
-
-    sections = _run_checks()
-
-    if args.json:
-        all_results = [item for items in sections.values() for item in items]
-        has_fail = any(r[0] == "FAIL" for r in all_results)
-        has_warn = any(r[0] == "WARN" for r in all_results)
-        overall = "FAIL" if has_fail else ("WARN" if has_warn else "OK")
-        print(_json.dumps({
-            "overall": overall,
-            "sections": {k: [list(r) for r in v] for k, v in sections.items()},
-        }))
-    else:
-        all_results = [item for items in sections.values() for item in items]
-        has_issue = any(r[0] in ("FAIL", "WARN") for r in all_results)
-        if _cfg.get("print_only_if_issues", False) and not has_issue:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] All OK — skipping print.")
-        else:
-            print_report(sections)
+        "docker":   check
