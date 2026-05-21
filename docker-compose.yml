@@ -1,17 +1,15 @@
 services:
   receipt-printer:
-    build: .
+    image: ghcr.io/brummilab/homelab-receipt-printer:latest
     container_name: receipt-printer
     restart: unless-stopped
     ports:
-      - "8085:8080"
+      - 8085:8080
     environment:
       - TZ=Europe/Vienna
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/tank/media:/backups:ro
       - /mnt/tank:/mnt/tank:ro
-      - ./config:/config
-    # USB printer — uncomment if not using network/LAN backend
-    # devices:
-    #   - /dev/usb/lp0:/dev/usb/lp0
+      - /mnt/tank/configs/receipt-printer/config:/config
+    # USB printer — uncomment if not using network/LAN
